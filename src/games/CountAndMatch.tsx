@@ -7,7 +7,7 @@ import { RefreshCw } from "lucide-react";
 const EMOJIS = ["🍎", "🌟", "🐱", "🎈", "🌸", "🐠", "🍕", "🎵"];
 
 function generateProblem() {
-  const count = Math.floor(Math.random() * 15) + 3; // 3-17
+  const count = Math.floor(Math.random() * 15) + 3;
   const emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
   const choices = new Set<number>([count]);
   while (choices.size < 4) {
@@ -58,7 +58,7 @@ export default function CountAndMatch() {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <Confetti show={showConfetti} />
       <div className="max-w-3xl mx-auto">
-        <GameHeader title="Count & Match" emoji="🔢" score={score} total={total} />
+        <GameHeader title="Zählen & Zuordnen" emoji="🔢" score={score} total={total} />
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}
@@ -66,7 +66,7 @@ export default function CountAndMatch() {
           className="bg-card rounded-3xl p-6 md:p-8 shadow-lg"
         >
           <p className="text-center text-muted-foreground mb-6">
-            How many {problem.emoji} do you see?
+            Wie viele {problem.emoji} siehst du?
           </p>
 
           <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-8 max-w-md mx-auto">
@@ -125,8 +125,8 @@ export default function CountAndMatch() {
                 }`}
               >
                 {feedback === "correct"
-                  ? "🎉 Perfect!"
-                  : `😊 It's ${problem.count}!`}
+                  ? "🎉 Perfekt!"
+                  : `😊 Es sind ${problem.count}!`}
               </motion.div>
             )}
           </AnimatePresence>
@@ -138,7 +138,7 @@ export default function CountAndMatch() {
               onClick={nextProblem}
               className="bg-gradient-sunny text-foreground font-bold px-8 py-3 rounded-2xl shadow-lg flex items-center gap-2 text-lg"
             >
-              <RefreshCw size={22} /> Next
+              <RefreshCw size={22} /> Weiter
             </motion.button>
           </div>
         </motion.div>

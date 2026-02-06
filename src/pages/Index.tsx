@@ -4,32 +4,32 @@ import { ArrowUpDown, Scale, Plus, Hash } from "lucide-react";
 
 const games = [
   {
-    title: "Number Order",
-    description: "Drag & drop numbers in order!",
+    title: "Zahlen ordnen",
+    description: "Ziehe die Zahlen in die richtige Reihenfolge!",
     emoji: "🔢",
     icon: ArrowUpDown,
     path: "/ordering",
     gradient: "bg-gradient-ocean",
   },
   {
-    title: "Compare Numbers",
-    description: "Is it < > or = ?",
+    title: "Zahlen vergleichen",
+    description: "Ist es < > oder = ?",
     emoji: "⚖️",
     icon: Scale,
     path: "/compare",
     gradient: "bg-gradient-forest",
   },
   {
-    title: "Make the Number",
-    description: "Find the addition pair!",
+    title: "Zahl bilden",
+    description: "Finde das richtige Additionspaar!",
     emoji: "➕",
     icon: Plus,
     path: "/make-number",
     gradient: "bg-gradient-fun",
   },
   {
-    title: "Count & Match",
-    description: "Count the objects!",
+    title: "Zählen & Zuordnen",
+    description: "Zähle die Objekte!",
     emoji: "🎯",
     icon: Hash,
     path: "/count",
@@ -49,10 +49,10 @@ export default function Index() {
           className="text-center mb-10 md:mb-14"
         >
           <h1 className="text-4xl md:text-6xl font-black text-foreground mb-3 text-shadow-playful">
-            🧮 Math Adventure
+            🧮 Mathe-Abenteuer
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground font-semibold">
-            Pick a game and start learning! 🚀
+            Wähle ein Spiel und fang an zu lernen! 🚀
           </p>
         </motion.div>
 
@@ -85,7 +85,7 @@ export default function Index() {
           transition={{ delay: 0.6 }}
           className="text-center text-muted-foreground mt-10 font-semibold"
         >
-          Numbers 1-20 · Perfect for Grade 1 🌟
+          Zahlen 1–20 · Perfekt für die 1. Klasse 🌟
         </motion.p>
       </div>
     </div>

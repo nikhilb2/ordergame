@@ -5,7 +5,7 @@ import { Confetti } from "@/components/Confetti";
 import { RefreshCw, Plus } from "lucide-react";
 
 function generateTarget(): number {
-  return Math.floor(Math.random() * 19) + 2; // 2-20
+  return Math.floor(Math.random() * 19) + 2;
 }
 
 function generateOptions(target: number): Array<[number, number]> {
@@ -19,7 +19,6 @@ function generateOptions(target: number): Array<[number, number]> {
     }
   }
 
-  // Generate wrong options
   while (wrong.length < 2) {
     const a = Math.floor(Math.random() * 15) + 1;
     const b = Math.floor(Math.random() * 15) + 1;
@@ -28,7 +27,6 @@ function generateOptions(target: number): Array<[number, number]> {
     }
   }
 
-  // Pick 2 correct + 2 wrong, shuffle
   const correctPick = correct.sort(() => Math.random() - 0.5).slice(0, 2);
   const all = [...correctPick, ...wrong].sort(() => Math.random() - 0.5);
   return all;
@@ -81,7 +79,7 @@ export default function MakeTheNumber() {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <Confetti show={showConfetti} />
       <div className="max-w-3xl mx-auto">
-        <GameHeader title="Make the Number" emoji="➕" score={score} total={total} />
+        <GameHeader title="Zahl bilden" emoji="➕" score={score} total={total} />
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}
@@ -89,7 +87,7 @@ export default function MakeTheNumber() {
           className="bg-card rounded-3xl p-6 md:p-8 shadow-lg"
         >
           <p className="text-center text-muted-foreground mb-4">
-            Which two numbers add up to make...
+            Welche zwei Zahlen ergeben zusammen...
           </p>
 
           <motion.div
@@ -150,7 +148,7 @@ export default function MakeTheNumber() {
                   feedback === "correct" ? "text-accent" : "text-destructive"
                 }`}
               >
-                {feedback === "correct" ? "🎉 You got it!" : "🤔 Not quite!"}
+                {feedback === "correct" ? "🎉 Richtig!" : "🤔 Nicht ganz!"}
               </motion.div>
             )}
           </AnimatePresence>
@@ -162,7 +160,7 @@ export default function MakeTheNumber() {
               onClick={nextRound}
               className="bg-gradient-sunny text-foreground font-bold px-8 py-3 rounded-2xl shadow-lg flex items-center gap-2 text-lg"
             >
-              <RefreshCw size={22} /> Next
+              <RefreshCw size={22} /> Weiter
             </motion.button>
           </div>
         </motion.div>

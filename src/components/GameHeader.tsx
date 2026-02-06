@@ -21,7 +21,7 @@ export const GameHeader = ({ title, emoji, score, total }: GameHeaderProps) => {
         className="flex items-center gap-2 bg-card rounded-full px-4 py-2 shadow-md font-bold text-foreground"
       >
         <ArrowLeft size={20} />
-        Back
+        Zurück
       </motion.button>
 
       <div className="text-center">
