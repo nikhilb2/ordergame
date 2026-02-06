@@ -7,6 +7,8 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -14,13 +16,13 @@ import {
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { motion, AnimatePresence } from "framer-motion";
-import { NumberBubble } from "@/components/NumberBubble";
+import { NumberBubble, DragOverlayBubble } from "@/components/NumberBubble";
 import { GameHeader } from "@/components/GameHeader";
 import { Confetti } from "@/components/Confetti";
 import { ArrowUp, ArrowDown, RefreshCw, CheckCircle2 } from "lucide-react";
 
 function generateNumbers(): number[] {
-  const count = 4 + Math.floor(Math.random() * 3); // 4-6 numbers
+  const count = 4 + Math.floor(Math.random() * 3);
   const set = new Set<number>();
   while (set.size < count) set.add(Math.floor(Math.random() * 20) + 1);
   return Array.from(set);
@@ -43,13 +45,19 @@ export default function NumberOrdering() {
   const [total, setTotal] = useState(0);
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 5 } })
   );
 
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
+    setActiveId(null);
     const { active, over } = event;
     if (over && active.id !== over.id) {
       setItems((prev) => {
@@ -59,6 +67,11 @@ export default function NumberOrdering() {
       });
     }
   };
+
+  const handleDragCancel = () => setActiveId(null);
+
+  const activeIndex = activeId ? items.findIndex((_, i) => `item-${i}` === activeId) : -1;
+  const activeValue = activeIndex >= 0 ? items[activeIndex] : 0;
 
   const checkAnswer = useCallback(() => {
     const sorted =
@@ -117,7 +130,9 @@ export default function NumberOrdering() {
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
+            onDragCancel={handleDragCancel}
           >
             <SortableContext
               items={items.map((_, i) => `item-${i}`)}
@@ -129,6 +144,12 @@ export default function NumberOrdering() {
                 ))}
               </div>
             </SortableContext>
+
+            <DragOverlay dropAnimation={{ duration: 200, easing: "cubic-bezier(0.2, 0, 0, 1)" }}>
+              {activeId ? (
+                <DragOverlayBubble value={activeValue} index={activeIndex} />
+              ) : null}
+            </DragOverlay>
           </DndContext>
 
           <AnimatePresence>

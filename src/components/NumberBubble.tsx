@@ -18,22 +18,13 @@ interface NumberBubbleProps {
 }
 
 export const NumberBubble = ({ id, value, index }: NumberBubbleProps) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging, isOver } =
     useSortable({ id });
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition: transition ?? undefined,
     zIndex: isDragging ? 50 : 0,
-    scale: isDragging ? 1.18 : 1,
-    rotate: isDragging ? "4deg" : "0deg",
-    boxShadow: isDragging
-      ? "0 20px 40px -8px rgba(0,0,0,0.25), 0 0 0 4px hsl(210 90% 55% / 0.4)"
-      : "0 4px 12px -2px rgba(0,0,0,0.12)",
-    opacity: isDragging ? 0.92 : 1,
-    transitionProperty: "box-shadow, scale, rotate, opacity",
-    transitionDuration: "200ms",
-    transitionTimingFunction: "cubic-bezier(0.2, 0, 0, 1)",
   };
 
   const colorClass = BUBBLE_COLORS[index % BUBBLE_COLORS.length];
@@ -45,23 +36,52 @@ export const NumberBubble = ({ id, value, index }: NumberBubbleProps) => {
       {...attributes}
       {...listeners}
       initial={{ scale: 0 }}
-      animate={{ scale: isDragging ? 1.18 : 1 }}
+      animate={{ scale: 1 }}
       transition={{ delay: index * 0.05, type: "spring", stiffness: 300, damping: 20 }}
       className={`
-        ${colorClass} text-primary-foreground
         w-16 h-16 md:w-20 md:h-20
         rounded-2xl flex items-center justify-center
         text-2xl md:text-3xl font-black
         cursor-grab active:cursor-grabbing
         select-none relative
-        ${isDragging ? "ring-4 ring-primary/40" : "hover:scale-105 hover:shadow-xl hover:-translate-y-1"}
         transition-all duration-200
+        ${
+          isDragging
+            ? "opacity-30 border-4 border-dashed border-primary/50 bg-primary/10 text-transparent shadow-none"
+            : `${colorClass} text-primary-foreground shadow-lg hover:scale-105 hover:shadow-xl hover:-translate-y-1`
+        }
+        ${isOver && !isDragging ? "scale-90 ring-4 ring-kid-yellow/60 rounded-3xl" : ""}
       `}
     >
-      {value}
-      {isDragging && (
-        <div className="absolute inset-0 rounded-2xl bg-white/20 animate-pulse pointer-events-none" />
+      {isDragging ? "" : value}
+      {isOver && !isDragging && (
+        <div className="absolute inset-0 rounded-2xl bg-kid-yellow/20 animate-pulse pointer-events-none" />
       )}
     </motion.div>
+  );
+};
+
+/** Standalone overlay bubble rendered in the DragOverlay portal */
+export const DragOverlayBubble = ({ value, index }: { value: number; index: number }) => {
+  const colorClass = BUBBLE_COLORS[index % BUBBLE_COLORS.length];
+
+  return (
+    <div
+      className={`
+        ${colorClass} text-primary-foreground
+        w-16 h-16 md:w-20 md:h-20
+        rounded-2xl flex items-center justify-center
+        text-2xl md:text-3xl font-black
+        shadow-2xl select-none
+        ring-4 ring-primary/40
+        rotate-3
+      `}
+      style={{
+        boxShadow: "0 24px 48px -12px rgba(0,0,0,0.3), 0 0 0 4px hsl(210 90% 55% / 0.4)",
+      }}
+    >
+      {value}
+      <div className="absolute inset-0 rounded-2xl bg-white/15 animate-pulse pointer-events-none" />
+    </div>
   );
 };
