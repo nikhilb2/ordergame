@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowUpDown, Scale, Plus, Hash } from "lucide-react";
+import { ArrowUpDown, Scale, Plus, Hash, Puzzle } from "lucide-react";
 
 const games = [
   {
@@ -34,6 +34,14 @@ const games = [
     icon: Hash,
     path: "/count",
     gradient: "bg-gradient-sunny",
+  },
+  {
+    title: "Zahlen einsetzen",
+    description: "Setze die Zahlen richtig zu den Zeichen!",
+    emoji: "🧩",
+    icon: Puzzle,
+    path: "/placement",
+    gradient: "bg-gradient-candy",
   },
 ];
 

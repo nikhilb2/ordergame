@@ -49,6 +49,7 @@
     --gradient-sunny: linear-gradient(135deg, hsl(45 95% 60%), hsl(25 95% 60%));
     --gradient-ocean: linear-gradient(135deg, hsl(210 90% 55%), hsl(180 70% 50%));
     --gradient-forest: linear-gradient(135deg, hsl(150 65% 45%), hsl(120 50% 55%));
+    --gradient-candy: linear-gradient(135deg, hsl(340 80% 65%), hsl(25 95% 60%));
 
     --shadow-playful: 0 8px 30px -8px hsl(210 90% 55% / 0.3);
     --shadow-card: 0 4px 20px -4px hsl(240 20% 20% / 0.1);
@@ -96,6 +97,10 @@
 
   .bg-gradient-forest {
     background: var(--gradient-forest);
+  }
+
+  .bg-gradient-candy {
+    background: var(--gradient-candy);
   }
 
   /* Hide number input spinners */

@@ -9,6 +9,7 @@ import NumberOrdering from "./games/NumberOrdering";
 import CompareNumbers from "./games/CompareNumbers";
 import MakeTheNumber from "./games/MakeTheNumber";
 import CountAndMatch from "./games/CountAndMatch";
+import NumberPlacement from "./games/NumberPlacement";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/compare" element={<CompareNumbers />} />
           <Route path="/make-number" element={<MakeTheNumber />} />
           <Route path="/count" element={<CountAndMatch />} />
+          <Route path="/placement" element={<NumberPlacement />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
