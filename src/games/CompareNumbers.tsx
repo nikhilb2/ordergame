@@ -49,7 +49,7 @@ export default function CompareNumbers() {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <Confetti show={showConfetti} />
       <div className="max-w-3xl mx-auto">
-        <GameHeader title="Compare Numbers" emoji="⚖️" score={score} total={total} />
+        <GameHeader title="Zahlen vergleichen" emoji="⚖️" score={score} total={total} />
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}
@@ -57,7 +57,7 @@ export default function CompareNumbers() {
           className="bg-card rounded-3xl p-6 md:p-8 shadow-lg"
         >
           <p className="text-center text-muted-foreground mb-8">
-            Which symbol goes between the numbers?
+            Welches Zeichen gehört zwischen die Zahlen?
           </p>
 
           <div className="flex items-center justify-center gap-4 md:gap-8 mb-8">
@@ -121,8 +121,8 @@ export default function CompareNumbers() {
                 }`}
               >
                 {feedback === "correct"
-                  ? "🎉 Correct!"
-                  : `😊 The answer is "${problem.answer}"`}
+                  ? "🎉 Richtig!"
+                  : `😊 Die Antwort ist „${problem.answer}"`}
               </motion.div>
             )}
           </AnimatePresence>
@@ -134,7 +134,7 @@ export default function CompareNumbers() {
               onClick={nextProblem}
               className="bg-gradient-sunny text-foreground font-bold px-8 py-3 rounded-2xl shadow-lg flex items-center gap-2 text-lg"
             >
-              <RefreshCw size={22} /> Next
+              <RefreshCw size={22} /> Weiter
             </motion.button>
           </div>
         </motion.div>
