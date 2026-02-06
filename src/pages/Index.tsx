@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowUpDown, Scale, Plus, Hash, Puzzle } from "lucide-react";
+import { ArrowUpDown, Scale, Plus, Hash, Puzzle, Dices } from "lucide-react";
 
 const games = [
   {
@@ -42,6 +42,14 @@ const games = [
     icon: Puzzle,
     path: "/placement",
     gradient: "bg-gradient-candy",
+  },
+  {
+    title: "Würfeln & Addieren",
+    description: "Würfle und rechne die Summe aus!",
+    emoji: "🎲",
+    icon: Dices,
+    path: "/dice",
+    gradient: "bg-gradient-dice",
   },
 ];
 
