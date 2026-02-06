@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A children's math learning game app for first-graders (~ages 6-7). The UI is in **German**. Built with Lovable and uses React + TypeScript + Vite.
+A children's math learning game app for first-graders (~ages 6-7). The UI is in **German**. Built with React + TypeScript + Vite.
 
 ## Commands
 
