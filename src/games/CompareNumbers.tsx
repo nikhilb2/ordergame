@@ -48,15 +48,15 @@ export default function CompareNumbers() {
   const symbols = ["<", ">", "="];
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
+    <div className="h-screen bg-background p-4 md:p-8 flex flex-col overflow-hidden">
       <Confetti show={showConfetti} />
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto w-full flex flex-col flex-1 min-h-0">
         <GameHeader title="Zahlen vergleichen" emoji="⚖️" score={score} total={total} onReplay={replay} />
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="bg-card rounded-3xl p-6 md:p-8 shadow-lg"
+          className="bg-card rounded-3xl p-6 md:p-8 shadow-lg flex flex-col justify-center flex-1 min-h-0"
         >
           <p className="text-center text-muted-foreground mb-8">
             Welches Zeichen gehört zwischen die Zahlen?
