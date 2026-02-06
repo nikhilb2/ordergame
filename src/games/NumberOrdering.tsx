@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -122,11 +122,15 @@ export default function NumberOrdering() {
     useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 5 } })
   );
 
+  // Safety net: restore body styles on unmount in case they were set externally
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, []);
+
   const handleDragStart = (event: DragStartEvent) => {
-    // Prevent scrolling on touch devices during drag
-    document.body.style.overflow = 'hidden';
-    document.body.style.touchAction = 'none';
-    
     const id = event.active.id as string;
     if (id.startsWith("pool-")) {
       setActiveValue(parseInt(id.replace("pool-", "")));
@@ -234,18 +238,18 @@ export default function NumberOrdering() {
   const allPlaced = slots.every((s) => s !== null);
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
+    <div className="h-screen bg-background p-4 md:p-8 flex flex-col overflow-hidden touch-none">
       <Confetti show={showConfetti} />
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto w-full flex flex-col flex-1 min-h-0">
         <GameHeader title="Zahlen ordnen" emoji="🔢" score={score} total={total} onReplay={replay} />
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="bg-card rounded-3xl p-6 md:p-8 shadow-lg"
+          className="bg-card rounded-3xl p-4 md:p-6 shadow-lg flex flex-col flex-1 min-h-0"
         >
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-2 bg-muted rounded-full px-5 py-2 mb-4">
+          <div className="text-center mb-3">
+            <div className="inline-flex items-center gap-2 bg-muted rounded-full px-5 py-2 mb-2">
               {mode === "ascending" ? (
                 <ArrowUp className="text-accent" />
               ) : (
@@ -266,11 +270,11 @@ export default function NumberOrdering() {
             onDragCancel={handleDragCancel}
           >
             {/* Target row - drop slots */}
-            <div className="mb-4">
-              <p className="text-sm font-bold text-muted-foreground mb-2 text-center">
+            <div className="mb-3">
+              <p className="text-sm font-bold text-muted-foreground mb-1 text-center">
                 📥 Hier einsortieren:
               </p>
-              <div className="flex flex-wrap justify-center gap-3 md:gap-4 min-h-[80px] items-center bg-muted/30 rounded-2xl p-4">
+              <div className="flex flex-wrap justify-center gap-2 md:gap-3 min-h-[64px] items-center bg-muted/30 rounded-2xl p-3">
                 {slots.map((value, i) => (
                   <div key={`slot-${i}`} onClick={() => returnToPool(i)} className="cursor-pointer">
                     <DropSlot index={i} value={value} total={slots.length} isOver={overSlot === i} />
@@ -281,10 +285,10 @@ export default function NumberOrdering() {
 
             {/* Source pool row */}
             <PoolArea>
-              <p className="text-sm font-bold text-muted-foreground mb-2 text-center">
+              <p className="text-sm font-bold text-muted-foreground mb-1 text-center">
                 🎲 Zahlen zum Ziehen:
               </p>
-              <div className="flex flex-wrap justify-center gap-3 md:gap-4 min-h-[80px] items-center">
+              <div className="flex flex-wrap justify-center gap-2 md:gap-3 min-h-[64px] items-center">
                 {pool.length === 0 ? (
                   <span className="text-muted-foreground font-semibold">Alle platziert! ✅</span>
                 ) : (
@@ -319,7 +323,7 @@ export default function NumberOrdering() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0 }}
-                className={`text-center mt-6 text-2xl font-black ${
+                className={`text-center mt-4 text-2xl font-black ${
                   feedback === "correct" ? "text-accent" : "text-destructive"
                 }`}
               >
@@ -328,7 +332,7 @@ export default function NumberOrdering() {
             )}
           </AnimatePresence>
 
-          <div className="flex justify-center gap-4 mt-8">
+          <div className="flex justify-center gap-4 mt-4">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -361,7 +365,7 @@ export default function NumberOrdering() {
 function PoolArea({ children }: { children: React.ReactNode }) {
   const { setNodeRef } = useDroppable({ id: "pool-area" });
   return (
-    <div ref={setNodeRef} className="bg-muted/20 rounded-2xl p-4">
+    <div ref={setNodeRef} className="bg-muted/20 rounded-2xl p-3">
       {children}
     </div>
   );
