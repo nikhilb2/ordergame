@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -432,7 +432,7 @@ export default function NumberPlacement() {
   };
 
   return (
-    <div className="h-screen bg-background p-3 md:p-4 flex flex-col overflow-hidden">
+    <div className="h-screen bg-background p-3 md:p-4 flex flex-col overflow-hidden touch-none">
       <Confetti show={showConfetti} />
       <div className="max-w-3xl mx-auto w-full flex flex-col flex-1 min-h-0">
         <GameHeader
