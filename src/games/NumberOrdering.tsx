@@ -95,7 +95,7 @@ function DropSlot({ index, value, total, isOver }: { index: number; value: numbe
       >
         {value !== null ? value : ""}
       </div>
-      <span className="text-xs font-bold text-muted-foreground">{index + 1}.</span>
+      {/* <span className="text-xs font-bold text-muted-foreground">{index + 1}.</span> */}
     </div>
   );
 }
