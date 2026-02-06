@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameHeader } from "@/components/GameHeader";
 import { Confetti } from "@/components/Confetti";
+import { useSpeech } from "@/hooks/use-speech";
 import { RefreshCw } from "lucide-react";
 
 function generateProblem() {
@@ -12,6 +13,7 @@ function generateProblem() {
 }
 
 export default function CompareNumbers() {
+  const { replay } = useSpeech("Welches Zeichen gehört zwischen die Zahlen?");
   const [problem, setProblem] = useState(generateProblem);
   const [score, setScore] = useState(0);
   const [total, setTotal] = useState(0);
@@ -49,7 +51,7 @@ export default function CompareNumbers() {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <Confetti show={showConfetti} />
       <div className="max-w-3xl mx-auto">
-        <GameHeader title="Zahlen vergleichen" emoji="⚖️" score={score} total={total} />
+        <GameHeader title="Zahlen vergleichen" emoji="⚖️" score={score} total={total} onReplay={replay} />
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}

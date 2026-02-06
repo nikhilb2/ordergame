@@ -14,6 +14,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { GameHeader } from "@/components/GameHeader";
 import { Confetti } from "@/components/Confetti";
+import { useSpeech } from "@/hooks/use-speech";
 import { ArrowUp, ArrowDown, RefreshCw, CheckCircle2 } from "lucide-react";
 
 const BUBBLE_COLORS = [
@@ -26,7 +27,7 @@ const BUBBLE_COLORS = [
 ];
 
 function generateNumbers(): number[] {
-  const count = 4 + Math.floor(Math.random() * 3);
+  const count = 6 + Math.floor(Math.random() * 3);
   const set = new Set<number>();
   while (set.size < count) set.add(Math.floor(Math.random() * 20) + 1);
   return Array.from(set);
@@ -101,6 +102,11 @@ function DropSlot({ index, value, total, isOver }: { index: number; value: numbe
 
 export default function NumberOrdering() {
   const [mode, setMode] = useState<"ascending" | "descending">("ascending");
+  const { replay } = useSpeech(
+    mode === "ascending"
+      ? "Ordne die Zahlen von klein nach groß!"
+      : "Ordne die Zahlen von groß nach klein!"
+  );
   const [numbers, setNumbers] = useState(() => generateNumbers());
   const [pool, setPool] = useState(() => shuffle(numbers));
   const [slots, setSlots] = useState<(number | null)[]>(() => new Array(numbers.length).fill(null));
@@ -117,10 +123,13 @@ export default function NumberOrdering() {
   );
 
   const handleDragStart = (event: DragStartEvent) => {
+    // Prevent scrolling on touch devices during drag
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+    
     const id = event.active.id as string;
     if (id.startsWith("pool-")) {
-      const idx = parseInt(id.replace("pool-", ""));
-      setActiveValue(pool[idx]);
+      setActiveValue(parseInt(id.replace("pool-", "")));
     } else if (id.startsWith("filled-")) {
       const slotIdx = parseInt(id.replace("filled-", ""));
       setActiveValue(slots[slotIdx]);
@@ -147,12 +156,11 @@ export default function NumberOrdering() {
 
     // Dragging from pool to a slot
     if (activeId.startsWith("pool-") && overId.startsWith("slot-")) {
-      const poolIdx = parseInt(activeId.replace("pool-", ""));
+      const value = parseInt(activeId.replace("pool-", ""));
       const slotIdx = parseInt(overId.replace("slot-", ""));
       if (slots[slotIdx] !== null) return; // slot occupied
 
-      const value = pool[poolIdx];
-      setPool((p) => p.filter((_, i) => i !== poolIdx));
+      setPool((p) => p.filter((v) => v !== value));
       setSlots((s) => {
         const next = [...s];
         next[slotIdx] = value;
@@ -229,7 +237,7 @@ export default function NumberOrdering() {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <Confetti show={showConfetti} />
       <div className="max-w-3xl mx-auto">
-        <GameHeader title="Zahlen ordnen" emoji="🔢" score={score} total={total} />
+        <GameHeader title="Zahlen ordnen" emoji="🔢" score={score} total={total} onReplay={replay} />
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}
@@ -280,8 +288,8 @@ export default function NumberOrdering() {
                 {pool.length === 0 ? (
                   <span className="text-muted-foreground font-semibold">Alle platziert! ✅</span>
                 ) : (
-                  pool.map((num, i) => (
-                    <DraggableNumber key={`pool-${i}-${num}`} id={`pool-${i}`} value={num} colorIndex={num} />
+                  pool.map((num) => (
+                    <DraggableNumber key={`pool-${num}`} id={`pool-${num}`} value={num} colorIndex={num} />
                   ))
                 )}
               </div>

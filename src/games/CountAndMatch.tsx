@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameHeader } from "@/components/GameHeader";
 import { Confetti } from "@/components/Confetti";
+import { useSpeech } from "@/hooks/use-speech";
 import { RefreshCw } from "lucide-react";
 
 const EMOJIS = ["🍎", "🌟", "🐱", "🎈", "🌸", "🐠", "🍕", "🎵"];
@@ -23,6 +24,7 @@ function generateProblem() {
 }
 
 export default function CountAndMatch() {
+  const { replay } = useSpeech("Zähle die Bilder und wähle die richtige Zahl!");
   const [problem, setProblem] = useState(generateProblem);
   const [score, setScore] = useState(0);
   const [total, setTotal] = useState(0);
@@ -58,7 +60,7 @@ export default function CountAndMatch() {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <Confetti show={showConfetti} />
       <div className="max-w-3xl mx-auto">
-        <GameHeader title="Zählen & Zuordnen" emoji="🔢" score={score} total={total} />
+        <GameHeader title="Zählen & Zuordnen" emoji="🔢" score={score} total={total} onReplay={replay} />
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}
