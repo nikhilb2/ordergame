@@ -5,6 +5,21 @@ import { Confetti } from "@/components/Confetti";
 import { useSpeech } from "@/hooks/use-speech";
 import { RefreshCw } from "lucide-react";
 
+const GERMAN_NUMBERS = [
+  "null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben",
+  "acht", "neun", "zehn", "elf", "zwölf", "dreizehn", "vierzehn",
+  "fünfzehn", "sechzehn", "siebzehn", "achtzehn", "neunzehn", "zwanzig",
+];
+
+function speakGerman(text: string) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "de-DE";
+  utterance.rate = 0.85;
+  window.speechSynthesis.speak(utterance);
+}
+
 const DOT_COLORS = [
   "bg-kid-blue",
   "bg-kid-purple",
@@ -75,6 +90,9 @@ export default function SubtractionDots() {
         setFeedback("correct");
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 100);
+        speakGerman(
+          `${GERMAN_NUMBERS[problem.a]} minus ${GERMAN_NUMBERS[problem.b]} gleich ${GERMAN_NUMBERS[problem.answer]}`
+        );
       } else {
         setFeedback("wrong");
       }
