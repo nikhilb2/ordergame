@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowUpDown, Scale, Plus, Hash, Puzzle, Dices } from "lucide-react";
+import { ArrowUpDown, Scale, Plus, Hash, Puzzle, Dices, Minus } from "lucide-react";
 
 const games = [
   {
@@ -50,6 +50,14 @@ const games = [
     icon: Dices,
     path: "/dice",
     gradient: "bg-gradient-dice",
+  },
+  {
+    title: "Abziehen mit Punkten",
+    description: "Streiche Punkte durch und zähle den Rest!",
+    emoji: "➖",
+    icon: Minus,
+    path: "/subtract",
+    gradient: "bg-gradient-subtract",
   },
 ];
 

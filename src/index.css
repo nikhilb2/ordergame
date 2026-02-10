@@ -51,6 +51,7 @@
     --gradient-forest: linear-gradient(135deg, hsl(150 65% 45%), hsl(120 50% 55%));
     --gradient-candy: linear-gradient(135deg, hsl(340 80% 65%), hsl(25 95% 60%));
     --gradient-dice: linear-gradient(135deg, hsl(270 70% 60%), hsl(210 90% 55%));
+    --gradient-subtract: linear-gradient(135deg, hsl(0 80% 60%), hsl(25 95% 60%));
 
     --shadow-playful: 0 8px 30px -8px hsl(210 90% 55% / 0.3);
     --shadow-card: 0 4px 20px -4px hsl(240 20% 20% / 0.1);
@@ -106,6 +107,10 @@
 
   .bg-gradient-dice {
     background: var(--gradient-dice);
+  }
+
+  .bg-gradient-subtract {
+    background: var(--gradient-subtract);
   }
 
   /* Hide number input spinners */
