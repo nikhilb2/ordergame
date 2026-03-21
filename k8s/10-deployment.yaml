@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mathgame
+  namespace: nikhil
+  labels:
+    app: mathgame
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mathgame
+  template:
+    metadata:
+      labels:
+        app: mathgame
+    spec:
+      imagePullSecrets:
+      - name: docker-registry-auth
+      containers:
+        - name: api
+          image: registry.kube.nikhilbhatia.com/ordergame:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              name: http
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
