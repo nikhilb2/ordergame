@@ -28,7 +28,7 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="${PROJECT_ROOT:-$SCRIPT_DIR/..}"
-DOCKERFILE="${DOCKERFILE:-$PROJECT_ROOT/Dockerfile.client}"
+DOCKERFILE="${DOCKERFILE:-$PROJECT_ROOT/Dockerfile}"
 echo "Project root: $PROJECT_ROOT"
 if ! command -v docker >/dev/null 2>&1; then
   echo "Error: docker is not installed or not in PATH"

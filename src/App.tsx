@@ -12,6 +12,8 @@ import CountAndMatch from "./games/CountAndMatch";
 import NumberPlacement from "./games/NumberPlacement";
 import DiceAddition from "./games/DiceAddition";
 import SubtractionDots from "./games/SubtractionDots";
+import AdditionVertical from "./games/AdditionVertical";
+import SubtractionVertical from "./games/SubtractionVertical";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +32,8 @@ const App = () => (
           <Route path="/placement" element={<NumberPlacement />} />
           <Route path="/dice" element={<DiceAddition />} />
           <Route path="/subtract" element={<SubtractionDots />} />
+          <Route path="/add-learn" element={<AdditionVertical />} />
+          <Route path="/sub-learn" element={<SubtractionVertical />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

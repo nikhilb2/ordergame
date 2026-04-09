@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowUpDown, Scale, Plus, Hash, Puzzle, Dices, Minus } from "lucide-react";
+import { ArrowUpDown, Scale, Plus, Hash, Puzzle, Dices, Minus, BookOpen } from "lucide-react";
 
 const games = [
   {
@@ -58,6 +58,22 @@ const games = [
     icon: Minus,
     path: "/subtract",
     gradient: "bg-gradient-subtract",
+  },
+  {
+    title: "Addieren lernen",
+    description: "Lerne Schritt für Schritt, wie du Zahlen addierst!",
+    emoji: "✏️",
+    icon: BookOpen,
+    path: "/add-learn",
+    gradient: "bg-gradient-ocean",
+  },
+  {
+    title: "Subtrahieren lernen",
+    description: "Lerne Schritt für Schritt, wie du Zahlen subtrahierst!",
+    emoji: "📝",
+    icon: BookOpen,
+    path: "/sub-learn",
+    gradient: "bg-gradient-candy",
   },
 ];
 
