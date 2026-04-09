@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameHeader } from "@/components/GameHeader";
 import { Confetti } from "@/components/Confetti";
-import { RefreshCw, Delete } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 
 const GERMAN: Record<number, string> = {
   0: "null", 1: "eins", 2: "zwei", 3: "drei", 4: "vier", 5: "fünf",
@@ -61,50 +61,39 @@ type Problem = {
   steps: Step[];
 };
 
-// ── On-screen numpad ──────────────────────────────────────────────────────────
-function Numpad({ onDigit, onDelete }: { onDigit: (d: number) => void; onDelete: () => void }) {
-  const keys = [1, 2, 3, 4, 5, 6, 7, 8, 9, null, 0, "del"] as const;
+// ── Input cell (single digit, keyboard-driven, phone-friendly) ───────────────
+function InputCell({
+  value, onChange, onKeyDown, inputRef, correct, wrong, disabled,
+}: {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  inputRef?: React.RefObject<HTMLInputElement>;
+  correct?: boolean;
+  wrong?: boolean;
+  disabled?: boolean;
+}) {
   return (
-    <div className="grid grid-cols-3 gap-2 max-w-[220px] mx-auto mt-4">
-      {keys.map((k, i) =>
-        k === null ? (
-          <div key={i} />
-        ) : k === "del" ? (
-          <motion.button
-            key="del"
-            whileTap={{ scale: 0.9 }}
-            onClick={onDelete}
-            className="h-14 rounded-2xl bg-muted text-foreground font-bold flex items-center justify-center shadow"
-          >
-            <Delete size={20} />
-          </motion.button>
-        ) : (
-          <motion.button
-            key={k}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => onDigit(k)}
-            className="h-14 rounded-2xl bg-kid-blue text-primary-foreground text-2xl font-black shadow"
-          >
-            {k}
-          </motion.button>
-        )
-      )}
-    </div>
-  );
-}
-
-// ── Answer cell ───────────────────────────────────────────────────────────────
-function AnswerCell({ value, active, correct, wrong }: { value: string; active: boolean; correct?: boolean; wrong?: boolean }) {
-  return (
-    <div
-      className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl border-4 flex items-center justify-center text-3xl md:text-4xl font-black transition-all duration-300
-        ${correct ? "bg-kid-green/20 border-kid-green text-foreground" :
-          wrong ? "bg-destructive/20 border-destructive text-destructive" :
-          active ? "border-kid-blue ring-4 ring-kid-blue/30 bg-kid-blue/10 text-foreground" :
-          "border-dashed border-muted-foreground/30 bg-muted/20 text-muted-foreground/40"}`}
-    >
-      {value !== "" ? value : active ? "_" : "?"}
-    </div>
+    <input
+      ref={inputRef}
+      type="tel"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      maxLength={1}
+      value={value}
+      onChange={onChange}
+      onKeyDown={onKeyDown}
+      disabled={disabled}
+      autoComplete="off"
+      className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl border-4 text-center text-3xl md:text-4xl font-black transition-all duration-300 outline-none caret-transparent disabled:opacity-100
+        ${
+          correct
+            ? "bg-kid-green/20 border-kid-green text-foreground"
+            : wrong
+            ? "bg-destructive/20 border-destructive text-destructive"
+            : "border-kid-blue/30 bg-muted/20 text-foreground focus:border-kid-blue focus:ring-4 focus:ring-kid-blue/30 focus:bg-kid-blue/10"
+        }`}
+    />
   );
 }
 
@@ -209,12 +198,14 @@ export default function SubtractionVertical() {
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showLevelUp, setShowLevelUp] = useState(false);
-  // Numpad input state
+  // Keyboard input state
   const [borrowInput, setBorrowInput] = useState<"" | "0" | "1">("");
   const [answerDigits, setAnswerDigits] = useState<[string, string]>(["", ""]);
-  const [inputFocus, setInputFocus] = useState<"borrow" | "tens" | "ones" | "done">("tens");
   const [submitted, setSubmitted] = useState(false);
   const currentSpeechRef = useRef<string>("");
+  const borrowInputRef = useRef<HTMLInputElement>(null);
+  const tensInputRef = useRef<HTMLInputElement>(null);
+  const onesInputRef = useRef<HTMLInputElement>(null);
   const levelRef = useRef<1 | 2>(1);
 
   useEffect(() => {
@@ -228,17 +219,14 @@ export default function SubtractionVertical() {
   // Reset practice input when entering practice phase
   useEffect(() => {
     if (phase !== "practice") return;
-    const startFocus = practiceProblem.hasBorrow ? "borrow" : "tens";
     setBorrowInput("");
     setAnswerDigits(["", ""]);
-    setInputFocus(startFocus);
     setSubmitted(false);
     setFeedback(null);
-    speakGerman(
-      practiceProblem.hasBorrow
-        ? "Jetzt bist du dran! Musst du borgen? Schreibe 1 für Borgen oder 0 für nein."
-        : "Jetzt bist du dran! Löse die Aufgabe Schritt für Schritt."
-    );
+    speakGerman("Jetzt bist du dran! Fang bei der Einerstelle an.");
+    setTimeout(() => {
+      onesInputRef.current?.focus();
+    }, 150);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, practiceProblem]);
 
@@ -274,79 +262,44 @@ export default function SubtractionVertical() {
 
   const handleExplainAgain = useCallback(() => {
     window.speechSynthesis?.cancel();
+    setTeachProblem(practiceProblem);
     speakGerman("Kein Problem! Lass uns das nochmal anschauen.", () => {
       setStepIndex(0);
       setPhase("teaching");
     });
-  }, []);
+  }, [practiceProblem]);
 
-  const handleDigit = useCallback((d: number) => {
+  const handleSubmit = useCallback(() => {
     if (submitted) return;
-
-    if (inputFocus === "borrow") {
-      if (d === 0 || d === 1) {
-        setBorrowInput(d === 1 ? "1" : "0");
-        setInputFocus("tens");
-        speakGerman(d === 1 ? "Gut geborgt! Jetzt die Zehnerstelle." : "Kein Borgen. Jetzt die Zehnerstelle.");
-      }
-      return;
-    }
-
-    if (inputFocus === "tens") {
-      setAnswerDigits(([, ones]) => [String(d), ones]);
-      setInputFocus("ones");
-      return;
-    }
-
-    if (inputFocus === "ones") {
-      const onesStr = String(d);
-      setInputFocus("done");
-      setSubmitted(true);
-      setAnswerDigits(([tens]) => {
-        const enteredNum = parseInt(tens + onesStr, 10);
-        const p = practiceProblem;
-        const isCorrect = enteredNum === p.answer;
-        const borrowOk = !p.hasBorrow || borrowInput === "1";
-
-        setTotal((t) => t + 1);
-        if (isCorrect && borrowOk) {
-          setScore((s) => s + 1);
-          setFeedback("correct");
-          setShowConfetti(true);
-          setTimeout(() => setShowConfetti(false), 100);
-          speakGerman(`${g(p.a)} minus ${g(p.b)} gleich ${g(p.answer)}`);
-          setCorrectStreak((streak) => {
-            const next = streak + 1;
-            if (next >= 3 && levelRef.current === 1) {
-              setLevel(2);
-              setShowLevelUp(true);
-              setTimeout(() => setShowLevelUp(false), 3000);
-              setTimeout(() => speakGerman("Sehr gut! Jetzt kommen schwerere Aufgaben mit Borgen!"), 1200);
-              return 0;
-            }
-            return next;
-          });
-        } else {
-          setFeedback("wrong");
-          speakGerman(`Nicht ganz. Die Antwort ist ${g(p.answer)}`);
+    const p = practiceProblem;
+    const [tens, ones] = answerDigits;
+    const enteredNum = parseInt((tens || "0") + (ones || "0"), 10);
+    const isCorrect = enteredNum === p.answer;
+    const borrowOk = !p.hasBorrow || borrowInput === "1";
+    setSubmitted(true);
+    setTotal((t) => t + 1);
+    if (isCorrect && borrowOk) {
+      setScore((s) => s + 1);
+      setFeedback("correct");
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 100);
+      speakGerman(`${g(p.a)} minus ${g(p.b)} gleich ${g(p.answer)}`);
+      setCorrectStreak((streak) => {
+        const next = streak + 1;
+        if (next >= 3 && levelRef.current === 1) {
+          setLevel(2);
+          setShowLevelUp(true);
+          setTimeout(() => setShowLevelUp(false), 3000);
+          setTimeout(() => speakGerman("Sehr gut! Jetzt kommen schwerere Aufgaben mit Borgen!"), 1200);
+          return 0;
         }
-        return [tens, onesStr];
+        return next;
       });
+    } else {
+      setFeedback("wrong");
+      speakGerman(`Nicht ganz. Die Antwort ist ${g(p.answer)}`);
     }
-  }, [submitted, inputFocus, practiceProblem, borrowInput]);
-
-  const handleDelete = useCallback(() => {
-    if (submitted) return;
-    if (inputFocus === "done" || inputFocus === "ones") {
-      setAnswerDigits(([t]) => [t, ""]);
-      setInputFocus("ones");
-    } else if (inputFocus === "tens") {
-      setAnswerDigits(["", ""]);
-      if (practiceProblem.hasBorrow) setInputFocus("borrow");
-    } else if (inputFocus === "borrow") {
-      setBorrowInput("");
-    }
-  }, [submitted, inputFocus, practiceProblem.hasBorrow]);
+  }, [submitted, practiceProblem, answerDigits, borrowInput]);
 
   const nextRound = useCallback(() => {
     const newTeach = generateProblem(levelRef.current);
@@ -623,18 +576,36 @@ export default function SubtractionVertical() {
                   <div className="w-8" />
                   <div className="w-16 md:w-20 flex items-end justify-center">
                     {practiceProblem.hasBorrow && (
-                      <motion.div
-                        whileTap={!submitted ? { scale: 0.9 } : {}}
-                        onClick={() => { if (!submitted) setInputFocus("borrow"); }}
-                        className={`w-10 h-8 rounded-xl border-4 flex items-center justify-center text-lg font-black cursor-pointer transition-all duration-200
-                          ${borrowInput === "1"
-                            ? (isConsolidated ? (correctBorrow ? "bg-kid-green/20 border-kid-green text-foreground" : "bg-destructive/20 border-destructive text-destructive") : "bg-kid-red/20 border-kid-red text-kid-red")
-                            : inputFocus === "borrow"
-                            ? "border-kid-red ring-2 ring-kid-red/30 bg-kid-red/10 text-kid-red"
-                            : "border-dashed border-muted-foreground/30 bg-muted/20 text-muted-foreground/40"}`}
-                      >
-                        {borrowInput === "1" ? "1" : inputFocus === "borrow" ? "_" : ""}
-                      </motion.div>
+                      <input
+                        ref={borrowInputRef}
+                        type="tel"
+                        inputMode="numeric"
+                        pattern="[01]*"
+                        maxLength={1}
+                        value={borrowInput}
+                        disabled={submitted}
+                        autoComplete="off"
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^01]/g, "").slice(-1) as "" | "0" | "1";
+                          setBorrowInput(val);
+                          if (val) {
+                            speakGerman(val === "1" ? "Gut geborgt! Jetzt die Zehnerstelle." : "Kein Borgen. Jetzt die Zehnerstelle.");
+                            tensInputRef.current?.focus();
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Backspace" && !borrowInput) onesInputRef.current?.focus();
+                          if (e.key === "Enter") { handleSubmit(); return; }
+                        }}
+                        className={`w-10 h-8 rounded-xl border-4 text-center text-base font-black outline-none caret-transparent transition-all duration-200 disabled:opacity-100
+                          ${
+                            submitted
+                              ? correctBorrow
+                                ? "bg-kid-green/20 border-kid-green text-foreground"
+                                : "bg-destructive/20 border-destructive text-destructive"
+                              : "border-kid-red/50 bg-kid-red/5 text-kid-red focus:border-kid-red focus:ring-2 focus:ring-kid-red/30"
+                          }`}
+                      />
                     )}
                   </div>
                   <div className="w-16 md:w-20" />
@@ -664,17 +635,41 @@ export default function SubtractionVertical() {
                 {/* Answer row */}
                 <div className="flex items-center gap-2">
                   <div className="w-8" />
-                  <AnswerCell
+                  <InputCell
+                    inputRef={tensInputRef}
                     value={answerDigits[0]}
-                    active={!submitted && inputFocus === "tens"}
                     correct={isConsolidated && correctTens}
                     wrong={isConsolidated && !correctTens}
+                    disabled={submitted}
+                    onChange={(e) => {
+                      if (submitted) return;
+                      const val = e.target.value.replace(/[^0-9]/g, "").slice(-1);
+                      setAnswerDigits(([, ones]) => [val, ones]);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") { handleSubmit(); return; }
+                      if (e.key === "Backspace" && !answerDigits[0])
+                        (practiceProblem.hasBorrow ? borrowInputRef : onesInputRef).current?.focus();
+                    }}
                   />
-                  <AnswerCell
+                  <InputCell
+                    inputRef={onesInputRef}
                     value={answerDigits[1]}
-                    active={!submitted && inputFocus === "ones"}
                     correct={isConsolidated && correctOnes}
                     wrong={isConsolidated && !correctOnes}
+                    disabled={submitted}
+                    onChange={(e) => {
+                      if (submitted) return;
+                      const val = e.target.value.replace(/[^0-9]/g, "").slice(-1);
+                      setAnswerDigits(([t]) => [t, val]);
+                      if (val) {
+                        if (practiceProblem.hasBorrow) borrowInputRef.current?.focus();
+                        else tensInputRef.current?.focus();
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") { handleSubmit(); return; }
+                    }}
                   />
                 </div>
                 <div className="flex gap-2 mt-2">
@@ -683,18 +678,6 @@ export default function SubtractionVertical() {
                   <div className="w-16 md:w-20 text-center text-xs font-bold text-kid-orange/60 uppercase tracking-wide">Einer</div>
                 </div>
               </div>
-
-              {/* Input hint */}
-              {!submitted && (
-                <p className="text-center text-sm font-semibold text-muted-foreground mb-1">
-                  {inputFocus === "borrow" ? "Borgen nötig? Tippe 1 für Ja, 0 für Nein:" :
-                   inputFocus === "tens" ? "Schreibe die Zehnerstelle:" :
-                   inputFocus === "ones" ? "Schreibe die Einerstelle:" : ""}
-                </p>
-              )}
-
-              {/* Numpad */}
-              {!submitted && <Numpad onDigit={handleDigit} onDelete={handleDelete} />}
 
               <AnimatePresence>
                 {feedback && (
@@ -724,8 +707,26 @@ export default function SubtractionVertical() {
                 </motion.button>
 
                 <AnimatePresence>
+                  {!submitted && answerDigits[1] !== "" && (
+                    <motion.button
+                      key="prufen"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleSubmit}
+                      className="bg-kid-green text-primary-foreground font-bold px-6 py-3 rounded-2xl shadow-lg flex items-center justify-center gap-2 text-base"
+                    >
+                      ✅ Prüfen
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+
+                <AnimatePresence>
                   {feedback && (
                     <motion.button
+                      key="next"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       exit={{ scale: 0 }}
