@@ -24,6 +24,7 @@ npm run test:watch   # Vitest (watch mode)
 - `/compare` — CompareNumbers (compare two numbers with <, >, =)
 - `/make-number` — MakeTheNumber (find two numbers that sum to a target)
 - `/count` — CountAndMatch (count emojis and select the correct number)
+- `/daily` — DailyExercise (daily session covering the school's Quintal goals; generators and localStorage progress live in `src/games/daily/`)
 
 **Game components** live in `src/games/`. Each game is a self-contained page component managing its own state with React hooks. There is no shared game state or global store — each game independently handles scoring, round progression, feedback animations, and confetti.
 

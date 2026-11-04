@@ -19,10 +19,11 @@ export const GameHeader = ({ title, emoji, score, total, onReplay }: GameHeaderP
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => navigate("/")}
+        aria-label="Zurück"
         className="flex items-center gap-2 bg-card rounded-full px-4 py-2 shadow-md font-bold text-foreground"
       >
         <ArrowLeft size={20} />
-        Zurück
+        <span className="hidden sm:inline">Zurück</span>
       </motion.button>
 
       <div className="text-center flex items-center gap-2 justify-center">

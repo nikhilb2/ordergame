@@ -14,6 +14,7 @@ import DiceAddition from "./games/DiceAddition";
 import SubtractionDots from "./games/SubtractionDots";
 import AdditionVertical from "./games/AdditionVertical";
 import SubtractionVertical from "./games/SubtractionVertical";
+import DailyExercise from "./games/DailyExercise";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/daily" element={<DailyExercise />} />
           <Route path="/ordering" element={<NumberOrdering />} />
           <Route path="/compare" element={<CompareNumbers />} />
           <Route path="/make-number" element={<MakeTheNumber />} />

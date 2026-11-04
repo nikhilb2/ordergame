@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowUpDown, Scale, Plus, Hash, Puzzle, Dices, Minus, BookOpen } from "lucide-react";
+import { dayKey, loadStore } from "@/games/daily/progress";
 
 const games = [
   {
@@ -79,6 +80,7 @@ const games = [
 
 export default function Index() {
   const navigate = useNavigate();
+  const dailyDone = loadStore().doneDays.includes(dayKey());
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -95,6 +97,24 @@ export default function Index() {
             Wähle ein Spiel und fang an zu lernen! 🚀
           </p>
         </motion.div>
+
+        <motion.button
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 200 }}
+          whileHover={{ scale: 1.02, y: -4 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => navigate("/daily")}
+          className="bg-gradient-fun rounded-3xl p-6 md:p-8 text-left shadow-lg cursor-pointer w-full mb-5 md:mb-6 flex items-center gap-5"
+        >
+          <span className="text-5xl md:text-6xl">{dailyDone ? "🏆" : "📅"}</span>
+          <span>
+            <span className="block text-2xl md:text-3xl font-black text-primary-foreground mb-1">Tagesübung</span>
+            <span className="block text-primary-foreground/80 font-semibold text-base md:text-lg">
+              {dailyDone ? "Heute geschafft! Super gemacht! 🌟" : "Alles fürs 2. Quintal, jeden Tag ein bisschen!"}
+            </span>
+          </span>
+        </motion.button>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
           {games.map((game, i) => (
