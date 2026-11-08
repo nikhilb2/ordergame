@@ -8,7 +8,6 @@ import type { Task } from "./daily/tasks";
 const fetchMock = vi.fn();
 
 function startWith(task: Task) {
-  localStorage.setItem("mathe-log-key", "secret");
   localStorage.setItem(
     "mathe-tagesuebung-v1",
     JSON.stringify({

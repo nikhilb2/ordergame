@@ -9,7 +9,7 @@ import { useSpeech } from "@/hooks/use-speech";
 import { GOALS, type Task } from "./daily/tasks";
 import { dayKey, goalStatus, loadStore, recordResult, saveStore, startSession, streak, type GoalStatus, type Store } from "./daily/progress";
 import { TaskBody, type Report, type Outcome } from "./daily/TaskViews";
-import { flushAttempts, isLoggingEnabled, logAttempt, logSessionComplete, logSessionStart } from "./daily/attemptLog";
+import { flushAttempts, logAttempt, logSessionComplete, logSessionStart } from "./daily/attemptLog";
 
 const STATUS: Record<GoalStatus, { icon: string; label: string }> = {
   neu: { icon: "⚪", label: "Noch nicht geübt" },
@@ -241,7 +241,6 @@ export default function DailyExercise() {
         </motion.section>
 
         <GoalList store={store} />
-        {isLoggingEnabled() && <p className="text-center text-xs text-muted-foreground">📝 Antworten werden gespeichert</p>}
       </div>
     </div>
   );

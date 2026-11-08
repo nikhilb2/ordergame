@@ -2,7 +2,6 @@
 // Answers can only be added here: the log is read with kubectl, so nothing on
 // the public site exposes it.
 
-import { createHash, timingSafeEqual } from "node:crypto";
 import { appendFile, mkdir, readFile, stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import path from "node:path";
@@ -13,12 +12,15 @@ import { buildReport } from "./report.mjs";
 const PORT = Number(process.env.PORT ?? 80);
 const DIST_DIR = process.env.DIST_DIR ?? "/app/dist";
 const LOG_DIR = process.env.LOG_DIR ?? "/data";
-const LOG_KEY = process.env.LOG_KEY ?? "";
 const LOG_FILE = path.join(LOG_DIR, "attempts.jsonl");
 
+// The endpoint needs no password so that phones work without setup. These
+// limits stop anyone who finds it from filling the disk or spamming Telegram.
 const MAX_BODY_BYTES = 128 * 1024;
-const MAX_ATTEMPTS_PER_REQUEST = 50;
+const MAX_ATTEMPTS_PER_REQUEST = 20;
 const MAX_LOG_BYTES = 50 * 1024 * 1024;
+const MAX_ENTRIES_PER_MINUTE = 120;
+const MAX_REPORTS_PER_DAY = 20;
 
 const compress = compression();
 const staticConfig = {
@@ -27,13 +29,17 @@ const staticConfig = {
   rewrites: [{ source: "**", destination: "/index.html" }],
 };
 
-const digest = (value) => createHash("sha256").update(value).digest();
+let rateWindowStart = 0;
+let entriesInWindow = 0;
 
-function isAuthorized(req) {
-  return (
-    LOG_KEY !== "" &&
-    timingSafeEqual(digest(req.headers.authorization ?? ""), digest(`Bearer ${LOG_KEY}`))
-  );
+function isOverRateLimit(count) {
+  const now = Date.now();
+  if (now - rateWindowStart >= 60_000) {
+    rateWindowStart = now;
+    entriesInWindow = 0;
+  }
+  entriesInWindow += count;
+  return entriesInWindow > MAX_ENTRIES_PER_MINUTE;
 }
 
 async function readBody(req) {
@@ -53,6 +59,8 @@ function isLogEntry(value) {
     value !== null &&
     typeof value.id === "string" &&
     value.id.length <= 64 &&
+    typeof value.device === "string" &&
+    value.device.length <= 64 &&
     typeof value.at === "string" &&
     (value.type === "session-start" ||
       (value.type === "session-complete" &&
@@ -119,21 +127,37 @@ async function sendTelegram(text) {
 
 // A lost response makes the phone resend, which must not send a second report.
 const reportedRounds = new Set();
+let reportDay = "";
+let reportsToday = 0;
+
+function isReportAllowed() {
+  const today = new Date().toISOString().slice(0, 10);
+  if (today !== reportDay) {
+    reportDay = today;
+    reportsToday = 0;
+  }
+  reportsToday += 1;
+  return reportsToday <= MAX_REPORTS_PER_DAY;
+}
 
 async function reportRound(complete) {
   if (reportedRounds.has(complete.id)) return;
+  if (!isReportAllowed()) {
+    console.error("Daily Telegram report limit reached");
+    return;
+  }
   reportedRounds.add(complete.id);
   await sendTelegram(buildReport(await readLog(), complete));
 }
 
 async function handleAttempts(req, res) {
   if (req.method !== "POST") return send(res, 405);
-  if (!isAuthorized(req)) return send(res, 401);
 
   const body = await readBody(req);
   if (body === null) return send(res, 413);
   const attempts = parseAttempts(body);
   if (!attempts) return send(res, 400);
+  if (isOverRateLimit(attempts.length)) return send(res, 429);
   if ((await logSize()) >= MAX_LOG_BYTES) return send(res, 507);
 
   await appendFile(LOG_FILE, attempts.map((a) => `${JSON.stringify(a)}\n`).join(""));

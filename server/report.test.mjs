@@ -2,12 +2,22 @@ import { describe, expect, it } from "vitest";
 import { buildReport } from "./report.mjs";
 
 const day = "2026-11-08";
-const start = (id, at, mode = "new") => ({ id, at, day, type: "session-start", mode });
-const complete = (id, at, score, total) => ({ id, at, day, type: "session-complete", score, total });
+const device = "phone-abcd";
+const start = (id, at, mode = "new") => ({ id, at, day, device, type: "session-start", mode });
+const complete = (id, at, score, total) => ({ id, at, day, device, type: "session-complete", score, total });
 const doubling = { goal: "verdoppeln", level: 2, prompt: "Verdopple die Zahl 7.", kind: "fill", layout: "plain", cells: [{ t: "Das Doppelte von 7 =" }, { a: 14 }] };
-const attempt = (id, task, given, correct, outcome) => ({ id, at: "2026-11-08T19:05:00.000Z", day, goal: task.goal, task, given, correct, outcome });
+const attempt = (id, task, given, correct, outcome) => ({ id, at: "2026-11-08T19:05:00.000Z", day, device, goal: task.goal, task, given, correct, outcome });
 
 describe("buildReport", () => {
+  it("names the phone and keeps other phones' answers out", () => {
+    const end = complete("c", "2026-11-08T19:09:00.000Z", 1, 1);
+    const other = { ...attempt("x", doubling, [99], false, "revealed"), device: "other-phone" };
+    const text = buildReport([start("s", "2026-11-08T19:00:00.000Z"), other, attempt("b", doubling, [14], true, "correct"), end], end);
+    expect(text).toContain("Phone abcd");
+    expect(text).toContain("No mistakes");
+    expect(text).not.toContain("99");
+  });
+
   it("lists what she answered and what was correct", () => {
     const end = complete("c", "2026-11-08T19:09:00.000Z", 0, 1);
     const text = buildReport(

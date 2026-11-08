@@ -38,7 +38,7 @@ function uniqueById(entries) {
 }
 
 function roundEntries(entries, complete) {
-  const unique = uniqueById(entries.filter((entry) => entry.day === complete.day));
+  const unique = uniqueById(entries.filter((entry) => entry.day === complete.day && entry.device === complete.device));
   const end = unique.findIndex((entry) => entry.id === complete.id);
   const before = end === -1 ? unique : unique.slice(0, end);
   let start = before.length - 1;
@@ -92,7 +92,8 @@ function headline(complete, round) {
   const start = round.find((entry) => entry.type === "session-start");
   const minutes = start ? Math.max(1, Math.round((finished - new Date(start.at)) / 60000)) : null;
   const extra = start?.mode === "again" ? " (extra round)" : "";
-  return [`📊 Tagesübung finished${extra}`, minutes ? `${when} · ${minutes} min` : when];
+  const phone = `Phone ${complete.device.slice(-4)}`;
+  return [`📊 Tagesübung finished${extra}`, [when, minutes && `${minutes} min`, phone].filter(Boolean).join(" · ")];
 }
 
 export function buildReport(entries, complete) {

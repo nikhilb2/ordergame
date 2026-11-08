@@ -1,12 +1,12 @@
 import type { Task } from "./tasks";
 import { dayKey } from "./progress";
 
-// Answers are sent to the server so her mistakes can be reviewed. Only a phone
-// that opened the /daily#logkey=... link once sends anything, so the key never
-// appears in the public site code. Logging must never get in the way of the
-// game, so every failure here is silent and the answer stays queued.
+// Answers are sent to the server so her mistakes can be reviewed. Each phone
+// creates its own ID the first time something is logged, which keeps phones
+// apart in the log. Logging must never get in the way of the game, so every
+// failure here is silent and the answer stays queued.
 
-const KEY_STORAGE = "mathe-log-key";
+const DEVICE_STORAGE = "mathe-device-id";
 const QUEUE_STORAGE = "mathe-log-queue-v1";
 const MAX_QUEUED = 500;
 // Browsers refuse keepalive requests over 64 KB.
@@ -36,29 +36,22 @@ interface LogEntry {
   id: string;
   at: string;
   day: string;
+  device: string;
   [field: string]: unknown;
 }
 
-function readLogKey(): string | null {
-  try {
-    return localStorage.getItem(KEY_STORAGE);
-  } catch {
-    return null;
-  }
-}
+const newId = (now: Date = new Date()) => `${now.getTime().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
-export const isLoggingEnabled = () => readLogKey() !== null;
-
-export function captureLogKey(): boolean {
-  const match = window.location.hash.match(/^#logkey=([\w-]+)$/);
-  if (!match) return false;
+function deviceId(): string {
   try {
-    localStorage.setItem(KEY_STORAGE, match[1]);
+    const existing = localStorage.getItem(DEVICE_STORAGE);
+    if (existing) return existing;
+    const created = newId();
+    localStorage.setItem(DEVICE_STORAGE, created);
+    return created;
   } catch {
-    return false;
+    return "unknown";
   }
-  window.history.replaceState(null, "", window.location.pathname + window.location.search);
-  return true;
 }
 
 function readQueue(): LogEntry[] {
@@ -81,8 +74,7 @@ function writeQueue(queue: LogEntry[]): boolean {
 let flushing = false;
 
 export async function flushAttempts() {
-  const key = readLogKey();
-  if (!key || flushing) return;
+  if (flushing) return;
   flushing = true;
   try {
     for (;;) {
@@ -90,7 +82,7 @@ export async function flushAttempts() {
       if (batch.length === 0) return;
       const response = await fetch("/api/attempts", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(batch),
         keepalive: true,
       });
@@ -105,17 +97,8 @@ export async function flushAttempts() {
 }
 
 function enqueue(fields: Record<string, unknown>) {
-  if (!readLogKey()) return;
   const now = new Date();
-  writeQueue([
-    ...readQueue(),
-    {
-      ...fields,
-      id: `${now.getTime().toString(36)}-${Math.random().toString(36).slice(2, 10)}`,
-      at: now.toISOString(),
-      day: dayKey(now),
-    },
-  ]);
+  writeQueue([...readQueue(), { ...fields, id: newId(now), at: now.toISOString(), day: dayKey(now), device: deviceId() }]);
   void flushAttempts();
 }
 

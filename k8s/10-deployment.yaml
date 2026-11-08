@@ -26,18 +26,12 @@ spec:
             claimName: mathgame-data
       containers:
         - name: api
-          image: registry.kube.nikhilbhatia.com/ordergame:v5
+          image: registry.kube.nikhilbhatia.com/ordergame:v6
           imagePullPolicy: Always
           envFrom:
             - secretRef:
                 name: hire-me-online-telegram
                 optional: true
-          env:
-            - name: LOG_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: mathgame-log
-                  key: log-key
           volumeMounts:
             - name: data
               mountPath: /data

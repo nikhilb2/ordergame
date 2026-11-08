@@ -10,11 +10,12 @@ kubectl -n nikhil exec deploy/mathgame -- cat /data/attempts.jsonl > /tmp/attemp
 ```
 
 If the command fails, the file does not exist yet, which means no entries have arrived.
-Check that the phone shows "📝 Antworten werden gespeichert" at the bottom of `/daily`.
+A tab left open keeps running the old version, so close it and reload the site on her phone.
 
 - Save the copy outside the repo. **Never commit the log**: it is a child's learning data.
 - The log is on one node's disk (`local-path-small`), so it is lost with that node. Offer to keep a dated copy each time.
 - Remove duplicates by `id` first. A network retry can repeat an entry.
+- Separate phones by `device`, and ask which one is hers. Anyone using the site is logged, including test rounds, and the endpoint has no password, so ignore entries that look wrong.
 - Wait for enough data: about a week, or at least 5 finished rounds. With less, report what is there and call it early.
 
 ### What each line contains
