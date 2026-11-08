@@ -2,9 +2,10 @@ import { useRef, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { clueText, type Cell, type Task } from "./tasks";
+import type { Given } from "./attemptLog";
 
 export type Outcome = "correct" | "retry" | "revealed";
-export type Report = (correct: boolean) => Outcome;
+export type Report = (correct: boolean, given: Given) => Outcome;
 
 type Mark = "idle" | "ok" | "wrong";
 
@@ -47,7 +48,7 @@ function useBlanks(answers: number[], report: Report) {
       return;
     }
     const nextMarks = answers.map((a, i): Mark => (Number(values[i]) === a ? "ok" : "wrong"));
-    const outcome = report(nextMarks.every((m) => m === "ok"));
+    const outcome = report(nextMarks.every((m) => m === "ok"), values.map(Number));
     if (outcome === "retry") {
       setMarks(nextMarks);
       setTimeout(() => focusFirst((i) => nextMarks[i] === "wrong"));
@@ -206,7 +207,7 @@ function ChoiceView({ task, report }: { task: Extract<Task, { kind: "choice" }>;
 
   const choose = (option: string) => {
     if (closed || wrong.includes(option)) return;
-    const outcome = report(option === task.answer);
+    const outcome = report(option === task.answer, option);
     if (outcome === "retry") setWrong((w) => [...w, option]);
     else {
       if (option !== task.answer) setWrong((w) => [...w, option]);
@@ -252,7 +253,7 @@ function OrderView({ task, report }: { task: Extract<Task, { kind: "order" }>; r
   const [closed, setClosed] = useState(false);
 
   const check = () => {
-    const outcome = report(placed.every((n, i) => n === sorted[i]));
+    const outcome = report(placed.every((n, i) => n === sorted[i]), placed);
     if (outcome === "retry") setWrong(true);
     else {
       setPlaced(sorted);
@@ -321,7 +322,7 @@ function BandView({ task, report }: { task: Extract<Task, { kind: "band" }>; rep
   const tap = (n: number) => {
     if (closed) return;
     setTapped(n);
-    if (report(n === task.target) !== "retry") setClosed(true);
+    if (report(n === task.target, n) !== "retry") setClosed(true);
   };
 
   return (
@@ -358,7 +359,7 @@ function FieldView({ task, report }: { task: Extract<Task, { kind: "field" }>; r
   const tap = (n: number) => {
     if (closed) return;
     setTapped(n);
-    if (report(n === task.target) === "retry") return;
+    if (report(n === task.target, n) === "retry") return;
     setClosed(true);
     setFast(n === task.target && Date.now() - startedAt.current < task.fastMs);
   };
@@ -424,9 +425,10 @@ function StepsView({ task, report }: { task: Extract<Task, { kind: "steps" }>; r
 
   const tap = (n: number) => {
     if (closed || n === task.start || path.slice(0, found).includes(n)) return;
+    const tappedSoFar = [...path.slice(0, found), n];
     if (n !== path[found]) {
       setWrong(n);
-      if (report(false) === "revealed") {
+      if (report(false, tappedSoFar) === "revealed") {
         setFound(task.count);
         setClosed(true);
       }
@@ -434,7 +436,7 @@ function StepsView({ task, report }: { task: Extract<Task, { kind: "steps" }>; r
     }
     setWrong(null);
     setFound(found + 1);
-    if (found + 1 === task.count && report(true) !== "retry") setClosed(true);
+    if (found + 1 === task.count && report(true, tappedSoFar) !== "retry") setClosed(true);
   };
 
   const classFor = (n: number) => {

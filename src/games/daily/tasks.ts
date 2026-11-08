@@ -47,7 +47,7 @@ export type RiddleClue =
   | { type: "neighbor"; n: number }
   | { type: "digitSum"; n: number };
 
-export type Task = { goal: GoalId; prompt: string; speech?: string } & (
+export type Task = { goal: GoalId; prompt: string; speech?: string; level?: Level } & (
   | { kind: "choice"; show?: string; highlight?: number; options: string[]; answer: string }
   | { kind: "fill"; layout: "plain" | "row" | "line"; cells: Cell[]; note?: string[] }
   | { kind: "riddle"; clues: RiddleClue[]; answer: number }
@@ -590,4 +590,4 @@ const GENERATORS: Record<GoalId, (rng: Rng, level: Level) => Task> = {
   zehnerzahlen,
 };
 
-export const generateTask = (goal: GoalId, level: Level, rng: Rng = Math.random): Task => GENERATORS[goal](rng, level);
+export const generateTask = (goal: GoalId, level: Level, rng: Rng = Math.random): Task => ({ ...GENERATORS[goal](rng, level), level });

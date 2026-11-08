@@ -7,6 +7,9 @@ metadata:
     app: mathgame
 spec:
   replicas: 1
+  # The log volume can only be mounted by one pod at a time.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: mathgame
@@ -17,10 +20,27 @@ spec:
     spec:
       imagePullSecrets:
       - name: docker-registry-auth
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mathgame-data
       containers:
         - name: api
-          image: registry.kube.nikhilbhatia.com/ordergame:v3
+          image: registry.kube.nikhilbhatia.com/ordergame:v5
           imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: hire-me-online-telegram
+                optional: true
+          env:
+            - name: LOG_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mathgame-log
+                  key: log-key
+          volumeMounts:
+            - name: data
+              mountPath: /data
           ports:
             - containerPort: 80
               name: http

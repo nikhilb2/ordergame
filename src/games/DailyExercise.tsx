@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Flame, Play, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +8,8 @@ import { Progress } from "@/components/ui/progress";
 import { useSpeech } from "@/hooks/use-speech";
 import { GOALS, type Task } from "./daily/tasks";
 import { dayKey, goalStatus, loadStore, recordResult, saveStore, startSession, streak, type GoalStatus, type Store } from "./daily/progress";
-import { TaskBody, type Outcome } from "./daily/TaskViews";
+import { TaskBody, type Report, type Outcome } from "./daily/TaskViews";
+import { flushAttempts, isLoggingEnabled, logAttempt, logSessionComplete, logSessionStart } from "./daily/attemptLog";
 
 const STATUS: Record<GoalStatus, { icon: string; label: string }> = {
   neu: { icon: "⚪", label: "Noch nicht geübt" },
@@ -29,14 +30,17 @@ function TaskScreen({
 }) {
   const { replay } = useSpeech(task.speech ?? task.prompt);
   const wrongs = useRef(0);
+  const shownAt = useRef(Date.now());
   const [feedback, setFeedback] = useState<Outcome | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const goal = GOALS.find((g) => g.id === task.goal)!;
 
-  const report = (correct: boolean): Outcome => {
+  const report: Report = (correct, given) => {
+    const attempt = wrongs.current + 1;
     let outcome: Outcome;
     if (correct) outcome = "correct";
     else outcome = ++wrongs.current >= 2 ? "revealed" : "retry";
+    logAttempt({ task, given, correct, attempt, outcome, ms: Date.now() - shownAt.current });
     setFeedback(outcome);
     if (outcome === "correct") {
       setShowConfetti(true);
@@ -143,6 +147,10 @@ export default function DailyExercise() {
   const doneToday = store.doneDays.includes(today);
   const days = streak(store.doneDays);
 
+  useEffect(() => {
+    void flushAttempts();
+  }, []);
+
   const update = (next: Store) => {
     setStore(next);
     saveStore(next);
@@ -150,6 +158,11 @@ export default function DailyExercise() {
 
   const start = () => {
     const next = startSession(store, today);
+    logSessionStart({
+      mode: inProgress ? "resume" : doneToday ? "again" : "new",
+      position: next.session!.index,
+      taskCount: next.session!.tasks.length,
+    });
     update(next);
     setPosition(next.session!.index);
     setCelebrate(false);
@@ -176,7 +189,12 @@ export default function DailyExercise() {
         total={current.tasks.length}
         score={current.score}
         answered={current.index}
-        onFinish={(firstTry) => update(recordResult(store, firstTry))}
+        onFinish={(firstTry) => {
+          const after = recordResult(store, firstTry);
+          update(after);
+          const round = after.session!;
+          if (round.index >= round.tasks.length) logSessionComplete({ score: round.score, total: round.index });
+        }}
         onNext={next}
       />
     );
@@ -223,6 +241,7 @@ export default function DailyExercise() {
         </motion.section>
 
         <GoalList store={store} />
+        {isLoggingEnabled() && <p className="text-center text-xs text-muted-foreground">📝 Antworten werden gespeichert</p>}
       </div>
     </div>
   );

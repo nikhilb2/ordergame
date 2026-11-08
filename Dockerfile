@@ -11,10 +11,10 @@ RUN npm run build
 # Stage 2: Serve
 FROM --platform=$TARGETPLATFORM node:22-slim
 
-RUN npm install -g serve
-
 WORKDIR /app
+RUN npm install --no-save --no-package-lock serve-handler@6.1.7 compression@1.8.1
 COPY --from=build /app/dist /app/dist
+COPY server /app/server
 
 EXPOSE 80
-CMD ["serve", "-s", "/app/dist", "-l", "80"]
+CMD ["node", "server/index.mjs"]
