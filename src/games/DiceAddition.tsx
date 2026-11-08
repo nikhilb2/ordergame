@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GameHeader } from "@/components/GameHeader";
 import { Confetti } from "@/components/Confetti";
 import { useSpeech } from "@/hooks/use-speech";
+import { speak } from "@/lib/speech";
 import { RefreshCw } from "lucide-react";
 
 const GERMAN_NUMBERS: Record<number, string> = {
@@ -19,13 +20,7 @@ function rollDice() {
 }
 
 function speakEquation(a: number, b: number, sum: number) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const text = `${GERMAN_NUMBERS[a]} plus ${GERMAN_NUMBERS[b]} gleich ${GERMAN_NUMBERS[sum]}`;
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "de-DE";
-  utterance.rate = 0.9;
-  window.speechSynthesis.speak(utterance);
+  speak(`${GERMAN_NUMBERS[a]} plus ${GERMAN_NUMBERS[b]} gleich ${GERMAN_NUMBERS[sum]}`);
 }
 
 export default function DiceAddition() {

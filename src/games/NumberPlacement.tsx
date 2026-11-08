@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GameHeader } from "@/components/GameHeader";
 import { Confetti } from "@/components/Confetti";
 import { useSpeech } from "@/hooks/use-speech";
+import { speak } from "@/lib/speech";
 
 const BUBBLE_COLORS = [
   "bg-kid-blue",
@@ -104,13 +105,8 @@ const GERMAN_NUMBERS: Record<number, string> = {
 };
 
 function speakEquation(left: number, op: Operator, right: number) {
-  if (!window.speechSynthesis) return;
   const opWord = op === "=" ? "gleich" : op === "<" ? "kleiner als" : "größer als";
-  const text = `${GERMAN_NUMBERS[left]} ${opWord} ${GERMAN_NUMBERS[right]}`;
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "de-DE";
-  utterance.rate = 0.9;
-  window.speechSynthesis.speak(utterance);
+  speak(`${GERMAN_NUMBERS[left]} ${opWord} ${GERMAN_NUMBERS[right]}`, { queue: true });
 }
 
 /** A draggable number in the pool */

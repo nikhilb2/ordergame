@@ -19,7 +19,7 @@ spec:
       - name: docker-registry-auth
       containers:
         - name: api
-          image: registry.kube.nikhilbhatia.com/ordergame:v2
+          image: registry.kube.nikhilbhatia.com/ordergame:v3
           imagePullPolicy: Always
           ports:
             - containerPort: 80

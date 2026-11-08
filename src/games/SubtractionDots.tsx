@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GameHeader } from "@/components/GameHeader";
 import { Confetti } from "@/components/Confetti";
 import { useSpeech } from "@/hooks/use-speech";
+import { speak } from "@/lib/speech";
 import { RefreshCw } from "lucide-react";
 
 const GERMAN_NUMBERS = [
@@ -12,12 +13,7 @@ const GERMAN_NUMBERS = [
 ];
 
 function speakGerman(text: string) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "de-DE";
-  utterance.rate = 0.85;
-  window.speechSynthesis.speak(utterance);
+  speak(text, { rate: 0.85 });
 }
 
 const DOT_COLORS = [

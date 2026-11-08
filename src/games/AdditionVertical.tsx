@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GameHeader } from "@/components/GameHeader";
 import { Confetti } from "@/components/Confetti";
 import { RefreshCw } from "lucide-react";
+import { cancelSpeech, speak } from "@/lib/speech";
 
 const GERMAN: Record<number, string> = {
   0: "null", 1: "eins", 2: "zwei", 3: "drei", 4: "vier", 5: "fünf",
@@ -24,16 +25,7 @@ function g(n: number): string {
 }
 
 function speakGerman(text: string, onEnd?: () => void) {
-  if (!window.speechSynthesis) {
-    onEnd?.();
-    return;
-  }
-  window.speechSynthesis.cancel();
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = "de-DE";
-  utt.rate = 0.85;
-  if (onEnd) utt.onend = onEnd;
-  window.speechSynthesis.speak(utt);
+  speak(text, { rate: 0.85, onEnd });
 }
 
 type Step = {
@@ -231,12 +223,12 @@ export default function AdditionVertical() {
 
     return () => {
       aborted = true;
-      window.speechSynthesis?.cancel();
+      cancelSpeech();
     };
   }, [stepIndex, phase, teachProblem]);
 
   const handleExplainAgain = useCallback(() => {
-    window.speechSynthesis?.cancel();
+    cancelSpeech();
     setTeachProblem(practiceProblem);
     speakGerman("Kein Problem! Lass uns das nochmal anschauen.", () => {
       setStepIndex(0);
