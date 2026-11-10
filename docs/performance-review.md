@@ -16,6 +16,7 @@ A tab left open keeps running the old version, so close it and reload the site o
 - The log is on one node's disk (`local-path-small`), so it is lost with that node. Offer to keep a dated copy each time.
 - Remove duplicates by `id` first. A network retry can repeat an entry.
 - Separate phones by `device`, and ask which one is hers. Anyone using the site is logged, including test rounds, and the endpoint has no password, so ignore entries that look wrong.
+- Separate exercises by `game`: entries from the Halbieren-Training (`/halbieren`) have `game: "halbieren"`, and Tagesübung entries have no `game`. Halbieren tasks list their right answers in `answers`, and `level` is the stage (1–5).
 - Wait for enough data: about a week, or at least 5 finished rounds. With less, report what is there and call it early.
 
 ### What each line contains

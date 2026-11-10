@@ -15,7 +15,7 @@ const markClasses: Record<Mark, string> = {
   wrong: "bg-destructive/15 border-destructive",
 };
 
-function CheckButton({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
+export function CheckButton({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
   return (
     <motion.button
       whileHover={{ scale: disabled ? 1 : 1.05 }}
@@ -30,7 +30,7 @@ function CheckButton({ onClick, disabled }: { onClick: () => void; disabled: boo
 }
 
 // Shared state for every task answered by typing into one or more blanks.
-function useBlanks(answers: number[], report: Report) {
+export function useBlanks(answers: number[], report: Report) {
   const [values, setValues] = useState(() => answers.map(() => ""));
   const [marks, setMarks] = useState<Mark[]>(() => answers.map(() => "idle"));
   const [closed, setClosed] = useState(false);

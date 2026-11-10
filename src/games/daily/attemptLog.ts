@@ -1,4 +1,3 @@
-import type { Task } from "./tasks";
 import { dayKey } from "./progress";
 
 // Answers are sent to the server so her mistakes can be reviewed. Each phone
@@ -14,8 +13,12 @@ const BATCH_SIZE = 10;
 
 export type Given = string | number | number[];
 
+/** Which exercise an entry comes from. Tagesübung entries leave it out. */
+export type Game = "halbieren";
+
 export interface AttemptInput {
-  task: Task;
+  task: { goal: string };
+  game?: Game;
   given: Given;
   correct: boolean;
   /** 1 for her first try at this task, 2 for the second. */
@@ -30,6 +33,7 @@ export interface SessionStartInput {
   mode: "new" | "resume" | "again";
   position: number;
   taskCount: number;
+  game?: Game;
 }
 
 interface LogEntry {
@@ -111,6 +115,6 @@ export function logSessionStart(input: SessionStartInput) {
 }
 
 /** The server answers this entry by sending the round's report to Telegram. */
-export function logSessionComplete(result: { score: number; total: number }) {
+export function logSessionComplete(result: { score: number; total: number; game?: Game }) {
   enqueue({ ...result, type: "session-complete" });
 }

@@ -116,6 +116,22 @@ export default function Index() {
           </span>
         </motion.button>
 
+        <motion.button
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.05, type: "spring", stiffness: 200 }}
+          whileHover={{ scale: 1.02, y: -4 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => navigate("/halbieren")}
+          className="bg-gradient-candy rounded-3xl p-6 md:p-8 text-left shadow-lg cursor-pointer w-full mb-5 md:mb-6 flex items-center gap-5"
+        >
+          <span className="text-5xl md:text-6xl">✂️</span>
+          <span>
+            <span className="block text-2xl md:text-3xl font-black text-primary-foreground mb-1">Halbieren-Training</span>
+            <span className="block text-primary-foreground/80 font-semibold text-base md:text-lg">Halbieren mit Rechenweg, Stufe für Stufe!</span>
+          </span>
+        </motion.button>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
           {games.map((game, i) => (
             <motion.button

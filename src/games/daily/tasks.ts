@@ -349,13 +349,14 @@ function begriffe(rng: Rng, level: Level): Task {
       const near = (x: number) => x >= 1 && Math.abs(x - n) !== 1 && x !== n;
       return choice(rng, goal, `Welche Zahl ist eine Nachbarzahl von ${n}?`, n + pick(rng, [-1, 1]), [n + 10, n - 10, n + 2, n - 2].filter(near), { show: String(n) });
     }
+    // Typed, not multiple choice: with four options she could pick the half by guessing.
     case "double": {
       const n = int(rng, 2, level === 1 ? 10 : level === 2 ? 25 : 50);
-      return choice(rng, goal, `Was ist das Doppelte von ${n}?`, n * 2, [n, n * 2 + 1, n * 2 - 1, n + 2, n * 2 + 10], { show: String(n) });
+      return { goal, kind: "fill", layout: "plain", prompt: `Was ist das Doppelte von ${n}?`, cells: [{ t: "Das Doppelte von" }, { t: String(n) }, { t: "ist" }, { a: n * 2 }] };
     }
     case "half": {
       const n = int(rng, 2, level === 1 ? 10 : level === 2 ? 25 : 50);
-      return choice(rng, goal, `Was ist die Hälfte von ${n * 2}?`, n, [n * 2, n + 1, n - 1, n + 2, n + 3].filter((x) => x >= 1), { show: String(n * 2) });
+      return { goal, kind: "fill", layout: "plain", prompt: `Was ist die Hälfte von ${n * 2}?`, cells: [{ t: "Die Hälfte von" }, { t: String(n * 2) }, { t: "ist" }, { a: n }] };
     }
     default: {
       const n = int(rng, 3, level === 1 ? 10 : 25);

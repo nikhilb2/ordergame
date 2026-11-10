@@ -1,7 +1,10 @@
-// Turns the logged answers of one finished Tagesübung round into a Telegram message.
+// Turns the logged answers of one finished round into a Telegram message.
+// Entries carry `game` for the Halbieren-Training; Tagesübung entries have none.
 
 const TIME_ZONE = "Europe/Zurich";
 const TELEGRAM_MAX_LENGTH = 4096;
+const GAME_TITLES = { daily: "Tagesübung", halbieren: "Halbieren-Training" };
+const gameOf = (entry) => entry.game ?? "daily";
 
 function correctAnswer(task) {
   switch (task.kind) {
@@ -20,14 +23,15 @@ function correctAnswer(task) {
     case "steps":
       return Array.from({ length: task.count }, (_, i) => task.start + (i + 1) * task.step);
     default:
-      return [];
+      // Halbieren-Training tasks list their answers.
+      return task.answers ?? [];
   }
 }
 
 function questionDetail(task) {
   if (task.kind === "choice") return task.show ?? null;
   if (task.kind === "fill") return task.cells.map((cell) => ("a" in cell ? "__" : cell.t)).join(" ");
-  return null;
+  return task.detail ?? null;
 }
 
 const formatGiven = (given) => (Array.isArray(given) ? given.join(", ") : String(given));
@@ -38,7 +42,9 @@ function uniqueById(entries) {
 }
 
 function roundEntries(entries, complete) {
-  const unique = uniqueById(entries.filter((entry) => entry.day === complete.day && entry.device === complete.device));
+  const unique = uniqueById(
+    entries.filter((entry) => entry.day === complete.day && entry.device === complete.device && gameOf(entry) === gameOf(complete)),
+  );
   const end = unique.findIndex((entry) => entry.id === complete.id);
   const before = end === -1 ? unique : unique.slice(0, end);
   let start = before.length - 1;
@@ -93,7 +99,8 @@ function headline(complete, round) {
   const minutes = start ? Math.max(1, Math.round((finished - new Date(start.at)) / 60000)) : null;
   const extra = start?.mode === "again" ? " (extra round)" : "";
   const phone = `Phone ${complete.device.slice(-4)}`;
-  return [`📊 Tagesübung finished${extra}`, [when, minutes && `${minutes} min`, phone].filter(Boolean).join(" · ")];
+  const title = GAME_TITLES[gameOf(complete)] ?? gameOf(complete);
+  return [`📊 ${title} finished${extra}`, [when, minutes && `${minutes} min`, phone].filter(Boolean).join(" · ")];
 }
 
 export function buildReport(entries, complete) {

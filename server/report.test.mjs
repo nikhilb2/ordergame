@@ -105,4 +105,28 @@ describe("buildReport", () => {
     const end = complete("c", "2026-11-08T19:09:00.000Z", 0, 80);
     expect(buildReport([...entries, end], end).length).toBeLessThanOrEqual(4096);
   });
+
+  it("reports a Halbieren-Training round on its own, with its answers", () => {
+    const halving = { goal: "halbieren", level: 5, kind: "half-quick", n: 76, prompt: "Was ist die Hälfte von 76?", answers: [38], detail: "Die Hälfte von 76 ist __" };
+    const game = (entry) => ({ ...entry, game: "halbieren" });
+    const end = game(complete("c2", "2026-11-08T19:30:00.000Z", 0, 1));
+    const text = buildReport(
+      [
+        start("s1", "2026-11-08T19:00:00.000Z"),
+        attempt("a", doubling, [12], false, "revealed"),
+        game(start("s2", "2026-11-08T19:20:00.000Z")),
+        game(attempt("b", halving, [33], false, "retry")),
+        attempt("x", doubling, [13], false, "retry"),
+        game(attempt("c", halving, [38], true, "correct")),
+        end,
+      ],
+      end,
+    );
+    expect(text).toContain("Halbieren-Training finished");
+    expect(text).toContain("10 min");
+    expect(text).toContain("Die Hälfte von 76 ist __");
+    expect(text).toContain("Her answers: 33 → 38");
+    expect(text).toContain("Correct: 38");
+    expect(text).not.toContain("Verdopple");
+  });
 });
