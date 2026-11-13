@@ -1,4 +1,5 @@
 import { GOALS, generateTask, shuffle, type GoalId, type Level, type Rng, type Task } from "./tasks";
+import type { PracticeRound, PracticeResult } from "./practice";
 
 const STORAGE_KEY = "mathe-tagesuebung-v1";
 const EXTRA_TASKS = 3;
@@ -22,6 +23,10 @@ export interface Store {
   goals: Partial<Record<GoalId, GoalProgress>>;
   doneDays: string[];
   session: Session | null;
+  /** The Themen-Training round in progress, see practice.ts. */
+  practice?: PracticeRound | null;
+  /** Finished Themen-Training rounds, oldest first. */
+  practiceLog?: PracticeResult[];
 }
 
 export type GoalStatus = "neu" | "ueben" | "sicher";
@@ -116,6 +121,7 @@ export function recordResult(store: Store, firstTry: boolean, rng: Rng = Math.ra
   const done = index >= tasks.length;
 
   return {
+    ...store,
     goals,
     doneDays: done && !store.doneDays.includes(session.date) ? [...store.doneDays, session.date] : store.doneDays,
     session: { ...session, tasks, index, score: session.score + (firstTry ? 1 : 0), retries: session.retries + (retry ? 1 : 0) },

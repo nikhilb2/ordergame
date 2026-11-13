@@ -1,9 +1,10 @@
 // Turns the logged answers of one finished round into a Telegram message.
-// Entries carry `game` for the Halbieren-Training; Tagesübung entries have none.
+// Entries carry `game` for the Halbieren-Training ("halbieren") and the Themen-Training
+// of one goal ("thema"); Tagesübung entries have none.
 
 const TIME_ZONE = "Europe/Zurich";
 const TELEGRAM_MAX_LENGTH = 4096;
-const GAME_TITLES = { daily: "Tagesübung", halbieren: "Halbieren-Training" };
+const GAME_TITLES = { daily: "Tagesübung", halbieren: "Halbieren-Training", thema: "Themen-Training" };
 const gameOf = (entry) => entry.game ?? "daily";
 
 function correctAnswer(task) {
@@ -99,7 +100,8 @@ function headline(complete, round) {
   const minutes = start ? Math.max(1, Math.round((finished - new Date(start.at)) / 60000)) : null;
   const extra = start?.mode === "again" ? " (extra round)" : "";
   const phone = `Phone ${complete.device.slice(-4)}`;
-  const title = GAME_TITLES[gameOf(complete)] ?? gameOf(complete);
+  const game = GAME_TITLES[gameOf(complete)] ?? gameOf(complete);
+  const title = complete.topic ? `${game}: ${complete.topic}` : game;
   return [`📊 ${title} finished${extra}`, [when, minutes && `${minutes} min`, phone].filter(Boolean).join(" · ")];
 }
 

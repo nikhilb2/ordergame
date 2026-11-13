@@ -129,4 +129,12 @@ describe("buildReport", () => {
     expect(text).toContain("Correct: 38");
     expect(text).not.toContain("Verdopple");
   });
+
+  it("names the topic of a Themen-Training round", () => {
+    const thema = (entry) => ({ ...entry, game: "thema" });
+    const end = thema({ ...complete("c", "2026-11-08T19:09:00.000Z", 0, 1), goal: "verdoppeln", topic: "Verdoppeln" });
+    const text = buildReport([thema(start("s", "2026-11-08T19:00:00.000Z")), thema(attempt("a", doubling, [12], false, "revealed")), end], end);
+    expect(text).toContain("Themen-Training: Verdoppeln finished");
+    expect(text).toContain("Her answers: 12");
+  });
 });

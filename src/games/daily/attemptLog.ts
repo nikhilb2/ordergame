@@ -13,8 +13,8 @@ const BATCH_SIZE = 10;
 
 export type Given = string | number | number[];
 
-/** Which exercise an entry comes from. Tagesübung entries leave it out. */
-export type Game = "halbieren";
+/** Which exercise an entry comes from. Tagesübung entries leave it out. "thema" is the Themen-Training of one goal. */
+export type Game = "halbieren" | "thema";
 
 export interface AttemptInput {
   task: { goal: string };
@@ -34,6 +34,8 @@ export interface SessionStartInput {
   position: number;
   taskCount: number;
   game?: Game;
+  /** Themen-Training only: the goal being practised. */
+  goal?: string;
 }
 
 interface LogEntry {
@@ -115,6 +117,6 @@ export function logSessionStart(input: SessionStartInput) {
 }
 
 /** The server answers this entry by sending the round's report to Telegram. */
-export function logSessionComplete(result: { score: number; total: number; game?: Game }) {
+export function logSessionComplete(result: { score: number; total: number; game?: Game; goal?: string; topic?: string }) {
   enqueue({ ...result, type: "session-complete" });
 }

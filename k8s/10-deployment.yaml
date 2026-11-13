@@ -26,7 +26,7 @@ spec:
             claimName: mathgame-data
       containers:
         - name: api
-          image: registry.kube.nikhilbhatia.com/ordergame:v7
+          image: registry.kube.nikhilbhatia.com/ordergame:v8
           imagePullPolicy: Always
           envFrom:
             - secretRef:

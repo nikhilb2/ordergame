@@ -16,7 +16,7 @@ A tab left open keeps running the old version, so close it and reload the site o
 - The log is on one node's disk (`local-path-small`), so it is lost with that node. Offer to keep a dated copy each time.
 - Remove duplicates by `id` first. A network retry can repeat an entry.
 - Separate phones by `device`, and ask which one is hers. Anyone using the site is logged, including test rounds, and the endpoint has no password, so ignore entries that look wrong.
-- Separate exercises by `game`: entries from the Halbieren-Training (`/halbieren`) have `game: "halbieren"`, and Tagesübung entries have no `game`. Halbieren tasks list their right answers in `answers`, and `level` is the stage (1–5).
+- Separate exercises by `game`: entries from the Halbieren-Training (`/halbieren`) have `game: "halbieren"`, entries from Einzeln üben (`/thema/<goal>`) have `game: "thema"`, and Tagesübung entries have no `game`. Topic rounds share the goal ids and levels of the Tagesübung, so per-goal accuracy can combine both; just note that ten tasks in a row of one topic are easier than mixed practice. Halbieren tasks list their right answers in `answers`, and `level` is the stage (1–5).
 - Wait for enough data: about a week, or at least 5 finished rounds. With less, report what is there and call it early.
 
 ### What each line contains
@@ -73,7 +73,7 @@ The code is in `src/games/daily/`.
 
 - **Prefer changing an existing generator** in `tasks.ts`. `GENERATORS` has one function per goal, `(rng, level) => Task`, and steering its numbers toward the weak spot is often enough.
 - **Do not add entries to `GOALS` for practice.** That list mirrors the school's letter.
-- **There is no focused-practice round yet.** `buildSession` in `progress.ts` already adds 3 extra tasks for her weakest goals, but only per goal, so it is the natural place to add one.
+- **A focused round per goal exists**: `/thema/<goal>` (`practice.ts`). Steering a generator toward a weak spot changes both the Tagesübung and that topic round. `buildSession` in `progress.ts` also adds 3 extra tasks for her weakest goals.
 - **A new task `kind`** needs four changes: the `Task` type, a view in `TaskViews.tsx` that passes `given` to `report`, a case in `TaskBody`, and a case in `correctAnswer`.
 - Add tests in `daily.test.ts`. Use Swiss spelling (ss, never ß) in new German text.
 - Keep it encouraging. A round takes about 10 minutes and ends on a success, and she should never see a list of her mistakes.
