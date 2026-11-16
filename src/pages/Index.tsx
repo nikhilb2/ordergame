@@ -135,6 +135,38 @@ export default function Index() {
         <motion.button
           initial={{ y: 40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.08, type: "spring", stiffness: 200 }}
+          whileHover={{ scale: 1.02, y: -4 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => navigate("/schritte")}
+          className="bg-gradient-forest rounded-3xl p-6 md:p-8 text-left shadow-lg cursor-pointer w-full mb-5 md:mb-6 flex items-center gap-5"
+        >
+          <span className="text-5xl md:text-6xl">🐸</span>
+          <span>
+            <span className="block text-2xl md:text-3xl font-black text-primary-foreground mb-1">Schritte-Training</span>
+            <span className="block text-primary-foreground/80 font-semibold text-base md:text-lg">Mit dem Frosch in Schritten hüpfen!</span>
+          </span>
+        </motion.button>
+
+        <motion.button
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.09, type: "spring", stiffness: 200 }}
+          whileHover={{ scale: 1.02, y: -4 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => navigate("/rueckwaerts")}
+          className="bg-gradient-sunny rounded-3xl p-6 md:p-8 text-left shadow-lg cursor-pointer w-full mb-5 md:mb-6 flex items-center gap-5"
+        >
+          <span className="text-5xl md:text-6xl">🚀</span>
+          <span>
+            <span className="block text-2xl md:text-3xl font-black text-foreground mb-1">Rückwärts-Training</span>
+            <span className="block text-foreground/80 font-semibold text-base md:text-lg">Countdown! Rückwärts zählen, auch über den Zehner.</span>
+          </span>
+        </motion.button>
+
+        <motion.button
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
           whileHover={{ scale: 1.02, y: -4 }}
           whileTap={{ scale: 0.98 }}

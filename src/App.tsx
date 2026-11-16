@@ -16,6 +16,8 @@ import AdditionVertical from "./games/AdditionVertical";
 import SubtractionVertical from "./games/SubtractionVertical";
 import DailyExercise from "./games/DailyExercise";
 import HalvingTraining from "./games/HalvingTraining";
+import StepTraining from "./games/StepTraining";
+import BackwardsTraining from "./games/BackwardsTraining";
 import TopicPractice from "./games/TopicPractice";
 
 const queryClient = new QueryClient();
@@ -30,6 +32,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/daily" element={<DailyExercise />} />
           <Route path="/halbieren" element={<HalvingTraining />} />
+          <Route path="/schritte" element={<StepTraining />} />
+          <Route path="/rueckwaerts" element={<BackwardsTraining />} />
           <Route path="/thema" element={<TopicPractice />} />
           <Route path="/thema/:goal" element={<TopicPractice />} />
           <Route path="/ordering" element={<NumberOrdering />} />

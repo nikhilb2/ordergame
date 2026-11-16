@@ -1,4 +1,5 @@
 import { shuffle, type Rng } from "../daily/tasks";
+import { createStagedStore, nextStage, type StagedRound, type StagedStore } from "../training/stagedStore";
 
 // Halbieren-Training: a focused practice round, separate from the Tagesübung.
 // The order of the stages follows the Schweizer Zahlenbuch 2 and Lehrplan 21
@@ -209,68 +210,15 @@ export function buildRound(stage: Stage, rng: Rng = Math.random): HalfTask[] {
 
 // --- Progress, kept on the phone ---
 
-const STORAGE_KEY = "mathe-halbieren-v1";
+export type HalvingRound = StagedRound<HalfTask, Stage>;
+export type HalvingStore = StagedStore<HalfTask, Stage>;
 
-export interface HalvingRound {
-  date: string;
-  stage: Stage;
-  tasks: HalfTask[];
-  index: number;
-  score: number;
-}
+export const halvingStoreApi = createStagedStore<HalfTask, Stage>({ storageKey: "mathe-halbieren-v1", maxStage: 5, buildRound });
 
-export interface HalvingStore {
-  stage: Stage;
-  /** The highest stage she has passed, 0 for none. */
-  passed: number;
-  rounds: { date: string; stage: Stage; score: number; total: number }[];
-  round: HalvingRound | null;
-}
-
-const emptyStore = (): HalvingStore => ({ stage: 1, passed: 0, rounds: [], round: null });
-
-export function loadHalvingStore(): HalvingStore {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? { ...emptyStore(), ...JSON.parse(raw) } : emptyStore();
-  } catch {
-    return emptyStore();
-  }
-}
-
-export function saveHalvingStore(store: HalvingStore) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
-  } catch {
-    // Private mode or blocked storage: the round still works until the page closes.
-  }
-}
+export const loadHalvingStore = halvingStoreApi.load;
+export const saveHalvingStore = halvingStoreApi.save;
+export const startRound = halvingStoreApi.start;
+export const recordHalvingResult = halvingStoreApi.record;
 
 /** 8 of 10 on the first try passes a stage; 4 or fewer goes back one. */
-export function stageAfterRound(stage: Stage, score: number, total: number): { stage: Stage; passed: boolean } {
-  const passed = score >= Math.ceil(total * 0.8);
-  if (passed) return { stage: Math.min(stage + 1, 5) as Stage, passed };
-  if (score <= Math.floor(total * 0.4)) return { stage: Math.max(stage - 1, 1) as Stage, passed };
-  return { stage, passed };
-}
-
-export function startRound(store: HalvingStore, date: string, rng: Rng = Math.random): HalvingStore {
-  const { round } = store;
-  if (round && round.index < round.tasks.length) return store;
-  return { ...store, round: { date, stage: store.stage, tasks: buildRound(store.stage, rng), index: 0, score: 0 } };
-}
-
-export function recordHalvingResult(store: HalvingStore, firstTry: boolean): HalvingStore {
-  const round = store.round;
-  if (!round) return store;
-  const next = { ...round, index: round.index + 1, score: round.score + (firstTry ? 1 : 0) };
-  if (next.index < next.tasks.length) return { ...store, round: next };
-
-  const result = stageAfterRound(round.stage, next.score, next.tasks.length);
-  return {
-    stage: result.stage,
-    passed: result.passed ? Math.max(store.passed, round.stage) : store.passed,
-    rounds: [...store.rounds, { date: round.date, stage: round.stage, score: next.score, total: next.tasks.length }].slice(-100),
-    round: next,
-  };
-}
+export const stageAfterRound = (stage: Stage, score: number, total: number) => nextStage(stage, score, total, 5);

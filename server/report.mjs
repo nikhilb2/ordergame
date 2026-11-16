@@ -1,10 +1,10 @@
 // Turns the logged answers of one finished round into a Telegram message.
-// Entries carry `game` for the Halbieren-Training ("halbieren") and the Themen-Training
+// Entries carry `game` for the Halbieren-Training ("halbieren"), the Schritte-Training ("schritte"), the Rückwärts-Training ("rueckwaerts") and the Themen-Training
 // of one goal ("thema"); Tagesübung entries have none.
 
 const TIME_ZONE = "Europe/Zurich";
 const TELEGRAM_MAX_LENGTH = 4096;
-const GAME_TITLES = { daily: "Tagesübung", halbieren: "Halbieren-Training", thema: "Themen-Training" };
+const GAME_TITLES = { daily: "Tagesübung", halbieren: "Halbieren-Training", schritte: "Schritte-Training", rueckwaerts: "Rückwärts-Training", thema: "Themen-Training" };
 const gameOf = (entry) => entry.game ?? "daily";
 
 function correctAnswer(task) {

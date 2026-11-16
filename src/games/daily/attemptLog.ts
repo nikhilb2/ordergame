@@ -14,7 +14,7 @@ const BATCH_SIZE = 10;
 export type Given = string | number | number[];
 
 /** Which exercise an entry comes from. Tagesübung entries leave it out. "thema" is the Themen-Training of one goal. */
-export type Game = "halbieren" | "thema";
+export type Game = "halbieren" | "rueckwaerts" | "schritte" | "thema";
 
 export interface AttemptInput {
   task: { goal: string };
